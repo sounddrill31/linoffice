@@ -1,0 +1,6 @@
+NAME="Excel"
+FULL_NAME="Microsoft Excel"
+EXE="C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE"
+CATEGORIES="Office"
+MIME_TYPES="application/vnd.ms-excel;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.openxmlformats-officedocument.spreadsheetml.template;application/vnd.ms-excel.sheet.macroEnabled.12;application/vnd.ms-excel.template.macroEnabled.12;application/vnd.ms-excel.addin.macroEnabled.12;application/vnd.ms-excel.sheet.binary.macroEnabled.12;"
+ICON="ms-excel"

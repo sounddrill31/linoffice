@@ -1,0 +1,24 @@
+Windows Registry Editor Version 5.00
+
+; Show file extensions and other settings in File Explorer
+[HKEY_USERS\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
+"HideFileExt"=dword:00000000
+"ShowFrequent"=dword:00000000
+"ShowRecent"=dword:00000000
+"LaunchTo"=dword:00000002
+
+; Set default save location for new user profiles
+[HKEY_USERS\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders]
+"Personal"="\\\\tsclient\\home"
+
+; Set Windows default folders to point to tsclient\home
+[HKEY_USERS\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders]
+"Personal"="\\\\tsclient\\home"
+
+; Set Office applications to use \\tsclient\home as default location
+[HKEY_USERS\DefaultUser\Software\Microsoft\Office\16.0\Common\Open Find]
+"Look In"="\\\\tsclient\\home"
+
+; NumLock on by default
+[HKEY_USERS\DefaultUser\Control Panel\Keyboard]
+"InitialKeyboardIndicators"="2"

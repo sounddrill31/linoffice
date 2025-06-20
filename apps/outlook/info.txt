@@ -1,0 +1,6 @@
+NAME="Outlook"
+FULL_NAME="Microsoft Outlook"
+EXE="C:\Program Files\Microsoft Office\root\Office16\OUTLOOK.EXE"
+CATEGORIES="Office"
+MIME_TYPES="application/vnd.ms-outlook;application/octet-stream;"
+ICON="ms-outlook"

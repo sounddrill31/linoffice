@@ -1,0 +1,6 @@
+NAME="OneNote"
+FULL_NAME="Microsoft OneNote"
+EXE="C:\Program Files\Microsoft Office\root\Office16\ONENOTE.EXE"
+CATEGORIES="Office"
+MIME_TYPES="application/msonenote;"
+ICON="ms-onenote"

@@ -1,0 +1,43 @@
+Windows Registry Editor Version 5.00
+
+    ; Disable RemoteApp allowlist so all applications can be used in Remote Desktop sessions
+    [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Terminal Server\TSAppAllowList]
+    "fDisabledAllowList"=dword:00000001
+
+    ; Allow unlisted programs to be run in Remote Desktop sessions
+    [HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services]
+    "fAllowUnlistedRemotePrograms"=dword:00000001
+
+    ; Disable automatic administrator logon at startup
+    [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon]
+    "AutoAdminLogon"="0"
+
+    ; Always use the server's keyboard layout, i.e. whatever keyboard layout is used in Windows VM
+    ; Removed to able to use freerdp's `/kbd` parameter
+    ; [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout]
+    ; "IgnoreRemoteKeyboardLayout"=dword:00000001
+
+    ; Disable "Do you want your PC to be discoverable" prompt after each host system reboot
+    [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Network\NewNetworkWindowOff]
+
+    ; Fix time zone in VM
+    [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\TimeZoneInformation]
+    "RealTimeIsUniversal"=dword:00000001
+
+    ; Enable automatic updates for Windows (reboot at 3 am if needed)
+    [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update]
+    "AUOptions"=dword:00000004
+    "NoAutoUpdate"=dword:00000000
+    "ScheduledInstallDay"=dword:00000000
+    "ScheduledInstallTime"=dword:00000003
+    "AutoInstallMinorUpdates"=dword:00000001
+    "IncludeRecommendedUpdates"=dword:00000001
+
+    ; Allow long file paths
+    [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem]
+    "LongPathsEnabled"=dword:00000001
+
+    ; Set function keys (F1-F12) as default instead of special functions (will be preferred by most users of Excel)
+    ; This applies to most keyboards; specific hardware may need different values
+    [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout]
+    "Scancode Map"=hex:00,00,00,00,00,00,00,00,01,00,00,00,3b,00,3b,e0,00,00,00,00

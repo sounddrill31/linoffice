@@ -1,0 +1,14 @@
+<Configuration ID="42f959e5-776a-4d79-b118-d6bba12b4386">
+  <Add OfficeClientEdition="64" Channel="Current">
+    <Product ID="HomeBusiness2024Retail">
+      <Language ID="MatchOS"  Fallback="en-us" />
+      <ExcludeApp ID="OneDrive" />
+    </Product>
+  </Add>
+  <Property Name="FORCEAPPSHUTDOWN" Value="TRUE" />
+  <Property Name="DeviceBasedLicensing" Value="0" />
+  <Property Name="SCLCacheOverride" Value="0" />
+  <Updates Enabled="TRUE" />
+  <RemoveMSI />
+  <Display Level="None" AcceptEULA="TRUE" />
+</Configuration>

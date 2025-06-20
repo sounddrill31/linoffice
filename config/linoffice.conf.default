@@ -1,0 +1,72 @@
+# [DISPLAY SCALING FACTOR]
+# NOTES:
+# - If an unsupported value is specified, a warning will be displayed.
+# - If an unsupported value is specified, LinOffice will use the closest supported value.
+# VALID VALUES:
+# - '100'
+# - '140'
+# - '180'
+RDP_SCALE="140"
+
+# [MOUNTING REMOVABLE PATHS FOR FILES]
+# NOTES:
+# - By default, `udisks` (which you most likely have installed) uses /run/media for mounting removable devices.
+#   This improves compatibility with most desktop environments (DEs).
+# ATTENTION: The Filesystem Hierarchy Standard (FHS) recommends /media instead. Verify your system's configuration.
+# - To manually mount devices, you may optionally use /mnt.
+# REFERENCE: https://wiki.archlinux.org/title/Udisks#Mount_to_/media
+REMOVABLE_MEDIA="/run/media"
+
+# [DEBUG WINAPPS]
+# NOTES:
+# - Creates and appends to linoffice.log when running LinOffice.
+# DEFAULT VALUE: 'true'
+# VALID VALUES:
+# - 'true'
+# - 'false'
+DEBUG="true"
+
+# [AUTOMATICALLY PAUSE WINDOWS]
+# NOTES:
+# DEFAULT VALUE: 'on'
+# VALID VALUES:
+# - 'on'
+# - 'off'
+AUTOPAUSE="on"
+
+# [AUTOMATICALLY PAUSE WINDOWS TIMEOUT]
+# NOTES:
+# - This setting determines the duration of inactivity to tolerate before Windows is automatically paused.
+# - This setting is ignored if 'AUTOPAUSE' is set to 'off'.
+# - The value must be specified in seconds (to the nearest 10 seconds e.g., '30', '40', '50', etc.).
+# - For RemoteApp RDP sessions, there is a mandatory 20-second delay, so the minimum value that can be specified here is '20'.
+# - Source: https://techcommunity.microsoft.com/t5/security-compliance-and-identity/terminal-services-remoteapp-8482-session-termination-logic/ba-p/246566
+# DEFAULT VALUE: '300'
+# VALID VALUES: >=20
+AUTOPAUSE_TIME="300"
+
+# [FREERDP COMMAND]
+# NOTES:
+# - LinOffice will attempt to automatically detect the correct command to use for your system.
+# DEFAULT VALUE: '' (BLANK)
+# VALID VALUES: The command required to run FreeRDPv3 on your system (e.g., 'xfreerdp', 'xfreerdp3', etc.).
+FREERDP_COMMAND=""
+
+# [KEYBOARD LAYOUT]
+# NOTES:
+# - Specifies your keyboard layout to be used in the VM
+# - Use the four-digit hexadecimal codes from: https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-input-locales-for-windows-language-packs?view=windows-11
+RDP_KBD=""
+
+# [CLEANUP PERIOD FOR ORPHANED OFFICE LOCK FILES (e.g. ~$file.docx)]
+# NOTES:
+# - These files do not get deleted on the mounted /home network drive when Office (Excel, Word, Powerpoint) closes a file, hence the script attempts to clean up these lock files when the last relevant Office process is closed. However, to avoid deleting pre-existing files, it is possible to set a CLEANUP_TIME_WINDOW (in seconds). Any lock files last modified before that time are ignored and not deleted.
+CLEANUP_TIME_WINDOW=86400  # Clean lock files from the last 24 hours
+# CLEANUP_TIME_WINDOW=unlimited  # Clean all lock files (use with caution)
+
+# [ADDITIONAL FREERDP FLAGS & ARGUMENTS]
+# NOTES:
+# - You can try adding /network:lan to these flags in order to increase performance, however, some users have faced issues with this.
+# DEFAULT VALUE: '/cert:tofu /sound /microphone'
+# VALID VALUES: See https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
+RDP_FLAGS="/cert:ignore /sound /microphone"
