@@ -55,6 +55,7 @@ CLEANUP_TIME_WINDOW=86400  # Default: 24 hours. Do not delete Office lock files 
 
 # OTHER
 FREERDP_PID=-1
+NEEDED_BOOT=false
 IS_OFFICE_WXP_APP=false  
 SCRIPT_START_TIME=0      
 
@@ -514,7 +515,6 @@ function waCheckContainerRunning() {
     local TIME_INTERVAL=5
     local MAX_WAIT_TIME=120  # Maximum time to wait for container to be ready
     local WAIT_ELAPSED=0
-    local NEEDED_BOOT=false
 
     # Determine the state of the container.
     CONTAINER_STATE=$("$WAFLAVOR" inspect --format='{{.State.Status}}' "$CONTAINER_NAME")
