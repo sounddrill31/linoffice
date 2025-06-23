@@ -393,6 +393,67 @@ waLastRun() {
     dprint "THIS_RUN: ${CURR_RUN_UNIX_TIME}"
 }
 
+# Name: 'waResetSystem'
+# Role: Reset the system by killing all FreeRDP processes, running cleanup, and rebooting the Windows VM
+waResetSystem() {
+    dprint "STARTING SYSTEM RESET"
+    
+    # 1. Kill all FreeRDP processes
+    dprint "KILLING ALL FREERDP PROCESSES"
+    for proc_file in "${APPDATA_PATH}"/FreeRDP_Process_*.cproc; do
+        [ -f "$proc_file" ] || continue
+        local pid="$(basename "$proc_file" | sed 's/FreeRDP_Process_\(.*\)\.cproc/\1/')"
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            dprint "Terminating FreeRDP process $pid"
+            kill -TERM "$pid" 2>/dev/null
+            sleep 1
+            if kill -0 "$pid" 2>/dev/null; then
+                dprint "Force killing FreeRDP process $pid"
+                kill -KILL "$pid" 2>/dev/null
+            fi
+        fi
+        rm -f "$proc_file" 2>/dev/null
+    done
+    
+    # 2. Run cleanup
+    dprint "RUNNING FULL CLEANUP"
+    waCheckMasterCleanup "true"
+    
+    # 3. Reboot Windows VM
+    dprint "REBOOTING WINDOWS VM"
+    echo -e "Rebooting Windows VM..."
+    "$COMPOSE_COMMAND" --file "$COMPOSE_PATH" restart &>/dev/null
+    
+    # Wait for container to restart
+    local max_wait_time=120
+    local wait_elapsed=0
+    local check_interval=5
+    
+    dprint "WAITING FOR WINDOWS VM TO RESTART..."
+    while (( wait_elapsed < max_wait_time )); do
+        if [[ $("$WAFLAVOR" inspect --format='{{.State.Status}}' "$CONTAINER_NAME") == "running" ]]; then
+            if timeout 1 bash -c ">/dev/tcp/$RDP_IP/$RDP_PORT" 2>/dev/null; then
+                dprint "WINDOWS VM RESTARTED SUCCESSFULLY"
+                echo -e "Windows VM restarted successfully."
+                break
+            fi
+        fi
+        sleep $check_interval
+        wait_elapsed=$((wait_elapsed + check_interval))
+        if (( wait_elapsed % 30 == 0 )); then
+            echo -e "Still waiting for Windows VM to restart... ($((wait_elapsed/60)) minutes elapsed)"
+        fi
+    done
+    
+    if (( wait_elapsed >= max_wait_time )); then
+        dprint "TIMEOUT WAITING FOR WINDOWS VM TO RESTART"
+        echo -e "Timeout waiting for Windows VM to restart. Please check the container status."
+        waThrowExit $EC_FAIL_START
+    fi
+    
+    dprint "SYSTEM RESET COMPLETED"
+}
+
 # Name: 'waFixScale'
 # Role: Since FreeRDP only supports '/scale' values of 100, 140 or 180, find the closest supported argument to the user's configuration.
 function waFixScale() {
@@ -667,6 +728,7 @@ function waRunCommand() {
         printf "%-40s -> %s\n" "./linoffice.sh windows" "shows the whole Windows desktop in an RDP session"
         printf "%-40s -> %s\n" "./linoffice.sh manual explorer.exe" "runs a specific Windows app, in this example explorer.exe (other useful examples: regedit.exe, powershell.exe)"
         printf "%-40s -> %s\n" "./linoffice.sh update" "runs an update script for Windows in Powershell"
+        printf "%-40s -> %s\n" "./linoffice.sh reset" "kills all FreeRDP processes, cleans up Office lock files, and reboots the Windows VM"
         printf "%-40s -> %s\n" "./linoffice.sh cleanup [--full|--reset]" "cleans up Office lock files (such as ~$file.xlsx) in the home folder and removable media; --full cleans all files regardless of creation date, --reset resets the last cleanup timestamp"
         printf "%-40s -> %s\n" "./linoffice.sh excel" "runs a predefined app, in this example Excel (available options: excel, word, powerpoint, onenote, outlook)"
         exit 0
@@ -687,6 +749,11 @@ function waRunCommand() {
             dprint "STANDARD CLEANUP REQUESTED"
             waCheckMasterCleanup "false"
         fi
+        exit 0
+
+    elif [ "$1" = "reset" ]; then
+        dprint "SYSTEM RESET REQUESTED"
+        waResetSystem
         exit 0
 
     elif [ "$1" = "windows" ]; then
