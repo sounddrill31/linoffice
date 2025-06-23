@@ -111,6 +111,7 @@ You can open files from your file manager with Right-click -> Open with.
 - `./linoffice.sh manual [explorer.exe|regedit.exe|powershell.exe|cmd.exe]`: runs a specific Windows app
 - `./linoffice.sh windows`:  shows the whole Windows desktop in an RDP session
 - `./linoffice.sh update`: runs an update script for Windows in Powershell
+- `./linoffice.sh reset`: kills all FreeRDP processes, cleans up Office lock files, and reboots the Windows VM
 - `./linoffice.sh cleanup [--full|--reset]`: cleans up Office lock files (such as ~$file.xlsx) in the home folder and removable media; --full cleans all files regardless of creation date, --reset resets the last cleanup timestamp
 
 ### Office activation 
@@ -127,7 +128,7 @@ In my experience, window management can be wonky, particularly if you're using W
 - Dialog boxes (commonly encountered when working with charts in Excel for example) spawn as new, separate windows, but they can sometimes appear behind the main window and at the same time block the main window until you close the dialog box.
 - Dialog windows may also have a bad size, e.g. the "edit chart data" window in Excel often cuts off the "OK" at the bottom. The solution, again, is to resize the window using a shortcut like "Meta + Right-Click" in order to access the "OK" button.
 
-These issues are upstream (FreeRDP and Wayland) and occur in WinApps as well.
+I believe that these issues are upstream in FreeRDP. If it becomes too bad, you can try `./linoffice.sh reset` to kill all FreeRDP processes and reboot the Windows VM - but be aware that you will lose any unsaved Office documents this way.
 
 ### Orphaned lock files
 
