@@ -37,7 +37,7 @@ Improvements:
 ### Planned features
 
 - [ ] Find a more elegant way of dealing with orphaned Office lock files (need to find the root cause of why they're not being deleted by Office)
-- [ ] Option to deny network access to VM (after Office is all set up) (perhaps by setting the Winodows DNS server to something that doesn't exist) - the aim is to avoid Windows and Office "phoning home" and also to reduce attack surface and get rid of the need to keep Windows updated
+- [ ] Option to deny network access to VM (after Office is all set up). The first aim is to avoid Windows and Office "phoning home", which could perhaps be done by setting the Windows DNS server to IP that doesn't work. It would also be nice to completely stop all non-RDP network traffic to reduce security risks for users who don't keep their Windows VM updated
 - [ ] GUI
     - [ ] Install wizard replacing `setup.sh`
     - [ ] Set display scaling
