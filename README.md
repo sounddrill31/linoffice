@@ -26,9 +26,9 @@ List of features inherited from WinApps:
 Improvements:
 - [x] Automatic non-interactive setup just by running the setup script
 - [x] Fewer dependencies needed, e.g. no netcat, ipconfig, dialog, libnotify
-- [x] (TO DO: PR UPSTREAM) Fixed an issue where Office wouldn't start if Windows VM wasn't booted 
+- [x] Fixed an issue where Office wouldn't start if Windows VM wasn't booted 
 - [x] Automatic deletion of Office lock files (like ~$file.docx) which for some reason don't get deleted on the RDP-mounted /home drive
-- [x] (TO DO: PR USPTREAM) Force time sync in Windows VM after Linux host wakes up from sleep, to avoid time drift
+- [x] Force time sync in Windows VM after Linux host wakes up from sleep, to avoid time drift
 - [x] International support: Automatic detection of language, date format, thousand and decimal separator, currency symbol, keyboard layout etc. in the Linux system to apply the same in the Windows VM (so that you don't have to deal with mm/dd/yyyy if you're not American!). Avoid geo-restrictions for Office install.
 - [x] Script to install updates for Windows and Office
 - [x] Time zone set to UTC to avoid issues with timestamps when saving in the /home folder
