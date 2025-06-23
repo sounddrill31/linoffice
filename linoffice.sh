@@ -913,7 +913,6 @@ function waCheckIdle() {
 }
 
 ### MAIN LOGIC ###
-#set -x # Enable for debugging.
 dprint "START"
 dprint "SCRIPT_DIR: ${SCRIPT_DIR_PATH}"
 dprint "SCRIPT_ARGS: ${*}"
@@ -923,18 +922,9 @@ SCRIPT_START_TIME=$(date +%s)
 waLastRun
 waLoadConfig
 waGetFreeRDPCommand
-
 waCheckContainerRunning
 waTimeSync
-
-# If Windows needed to boot, wait a bit and then run the command again
-if [ "$NEEDED_BOOT" = "true" ]; then
-    echo -e "Windows was just started. Waiting a moment before launching the application..."
-    sleep 10
-    waRunCommand "$@"
-else
-    waRunCommand "$@"
-fi
+waRunCommand "$@"
 
 if [[ "$AUTOPAUSE" == "on" ]]; then
     waCheckIdle
