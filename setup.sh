@@ -21,40 +21,6 @@ PROGRESS_DESKTOP="desktop_files_installed"
 DESKTOP_ONLY=false
 FIRSTRUN=false
 
-# Parse command line arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --desktop)
-            DESKTOP_ONLY=true
-            shift
-            ;;
-        --firstrun)
-            FIRSTRUN=true
-            shift
-            ;;
-        *)
-            print_error "Unknown option: $1"
-            print_info "Usage: $0 [--desktop] [--firstrun]"
-            exit 1
-            ;;
-    esac
-done
-
-# Relative filepaths
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LINOFFICE_DIR="$SCRIPT_DIR"
-LINOFFICE="$(realpath "${SCRIPT_DIR}/linoffice.sh")"
-COMPOSE_FILE="$(realpath "${SCRIPT_DIR}/config/compose.yaml")"
-LINOFFICE_CONF="$(realpath "${SCRIPT_DIR}/config/linoffice.conf")"
-OEM_DIR="$(realpath "${SCRIPT_DIR}/config/oem")"
-LOCALE_REG_SCRIPT="$(realpath "${SCRIPT_DIR}/config/locale_reg.sh")"
-LOCALE_LANG_SCRIPT="$(realpath "${SCRIPT_DIR}/config/locale_lang.sh")"
-REGIONAL_REG="$(realpath "${SCRIPT_DIR}/config/oem/registry/regional_settings.reg")"
-LOGFILE="$(realpath "${APPDATA_PATH}/windows_install.log")"
-DESKTOP_DIR="$(realpath "${SCRIPT_DIR}/desktop")"
-APPS_DIR="$(realpath "${SCRIPT_DIR}/apps")"
-FREERDP_COMMAND="" # will be checked in the script whether it's xfreerdp, xfreerdp3, or the Flatpak version
-
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -77,6 +43,52 @@ print_info() {
 print_step() {
     echo -e "\n${GREEN}Step $1:${NC} $2"
 }
+
+# Function to display usage information
+print_usage() {
+    print_info "Usage: $0 [--desktop] [--firstrun]"
+    print_info "Options:"
+    print_info " (no flag)     Run the installation script from the beginning"
+    print_info "  --desktop    Only recreate the desktop files (.desktop launchers)"
+    print_info "  --firstrun   Force RDP and Office installation checks"
+    exit 1
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --desktop)
+            DESKTOP_ONLY=true
+            shift
+            ;;
+        --firstrun)
+            FIRSTRUN=true
+            shift
+            ;;
+        --help)
+            print_usage
+            ;;
+        *)
+            print_error "Unknown option: $1"
+            print_usage
+            ;;
+    esac
+done
+
+# Relative filepaths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LINOFFICE_DIR="$SCRIPT_DIR"
+LINOFFICE="$(realpath "${SCRIPT_DIR}/linoffice.sh")"
+COMPOSE_FILE="$(realpath "${SCRIPT_DIR}/config/compose.yaml")"
+LINOFFICE_CONF="$(realpath "${SCRIPT_DIR}/config/linoffice.conf")"
+OEM_DIR="$(realpath "${SCRIPT_DIR}/config/oem")"
+LOCALE_REG_SCRIPT="$(realpath "${SCRIPT_DIR}/config/locale_reg.sh")"
+LOCALE_LANG_SCRIPT="$(realpath "${SCRIPT_DIR}/config/locale_lang.sh")"
+REGIONAL_REG="$(realpath "${SCRIPT_DIR}/config/oem/registry/regional_settings.reg")"
+LOGFILE="$(realpath "${APPDATA_PATH}/windows_install.log")"
+DESKTOP_DIR="$(realpath "${SCRIPT_DIR}/desktop")"
+APPS_DIR="$(realpath "${SCRIPT_DIR}/apps")"
+FREERDP_COMMAND="" # will be checked in the script whether it's xfreerdp, xfreerdp3, or the Flatpak version
 
 # Function to exit with error
 exit_with_error() {
