@@ -42,7 +42,9 @@ Improvements:
     - [ ] Install wizard replacing `setup.sh`
     - [ ] Set display scaling
     - [ ] Explicitly set regional settings, keyboard layout, time zone (e.g. for Excel's `=NOW()` formula) for the VM
-    - [ ] Quick actions e.g. run Windows Update, open Powershell, open Office Language Settings, clean orphaned lock files form /home folder, recreate .desktop files, remove/reset container, ...
+    - [ ] Quick actions e.g. run Windows Update, open Powershell, open Office Language Settings, clean orphaned lock files form /home folder
+    - [ ] Troubleshooting e.g. recreate .desktop files, RDP & Office check, restart container, reboot Windows VM, general health check
+    - [ ] Uninstall (with or without removing the container and its volume)
 - [ ] Deliver as Flatpak or AppImage, which would have these benefits:
     - Bundles dependencies such as FreeRDP and Podman-Compose; only Podman would need to be installed on the system already
     - Installation and uninstallation more straight-forward for Linux beginners
