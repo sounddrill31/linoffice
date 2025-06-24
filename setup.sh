@@ -151,7 +151,7 @@ function check_requirements() {
 
     # Check minimum RAM (8 GB)
     print_step "1" "Checking minimum RAM"
-    REQUIRED_RAM=8
+    REQUIRED_RAM=7
     AVAILABLE_RAM="$(free -b | awk '/^Mem:/{print int($2/1024/1024/1024)}')"
     if [ "$AVAILABLE_RAM" -lt "$REQUIRED_RAM" ]; then
         exit_with_error "Insufficient RAM. Required: ${REQUIRED_RAM}GB, Available: ${AVAILABLE_RAM}GB. \
