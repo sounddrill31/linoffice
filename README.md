@@ -36,15 +36,14 @@ Improvements:
 
 ### Planned features
 
-- [ ] Find a more elegant way of dealing with orphaned Office lock files (need to find the root cause of why they're not being deleted by Office)
 - [ ] Option to deny network access to VM (after Office is all set up). The first aim is to avoid Windows and Office "phoning home", which could perhaps be done by setting the Windows DNS server to IP that doesn't work. It would also be nice to completely stop all non-RDP network traffic to reduce security risks for users who don't keep their Windows VM updated
 - [ ] GUI
     - [ ] Install wizard replacing `setup.sh`
     - [ ] Launch Office apps once installed
     - [ ] Set display scaling
     - [ ] Explicitly set regional settings, keyboard layout, time zone (e.g. for Excel's `=NOW()` formula) for the VM
-    - [ ] Quick actions e.g. run Windows Update, open Powershell, open Office Language Settings, clean orphaned lock files form /home folder
-    - [ ] Troubleshooting e.g. recreate .desktop files, RDP & Office check, restart container, reboot Windows VM, general health check
+    - [ ] Quick actions e.g. run Windows Update, open Powershell, open Office Language Settings, clean orphaned lock files from /home folder, enable/disable network access for Windows
+    - [ ] Troubleshooting e.g. recreate .desktop files (`setup.sh --desktop`), RDP & Office check (`setup.sh --firstrun`), reset FreeRDP and container (`linoffice.sh --reset`), reboot Windows VM, general health and dependency check
     - [ ] Uninstall (with or without removing the container and its volume)
 - [ ] Deliver as Flatpak or AppImage, which would have these benefits:
     - Bundles dependencies such as FreeRDP and Podman-Compose; only Podman would need to be installed on the system already
