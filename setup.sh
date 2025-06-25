@@ -260,8 +260,14 @@ function check_requirements() {
         elif [ "$FREERDP_COMMAND" = "flatpak run --command=xfreerdp com.freerdp.FreeRDP" ]; then
             FREERDP_MAJOR_VERSION=$(flatpak list --columns=application,version | grep "^com.freerdp.FreeRDP" | awk '{print $2}' | cut -d'.' -f1)
             # Check if Flatpak has access to /home
-            if ! flatpak info com.freerdp.FreeRDP | grep -q "filesystems=.*home"; then
-                exit_with_error "Flatpak FreeRDP does not have access to /home directory.\n\nHOW TO FIX:\n1. Close any running FreeRDP instances\n2. Run this command to grant access:\n   flatpak override --user --filesystem=home com.freerdp.FreeRDP\n3. Run this setup script again"
+            if ! flatpak info --show-permissions com.freerdp.FreeRDP | grep -q "filesystems=.*home"; then
+                exit_with_error "Flatpak FreeRDP does not have access to /home directory.
+                
+                HOW TO FIX:
+                1. Close any running FreeRDP instances
+                2. Run this command to grant access:
+                   flatpak override --user --filesystem=home com.freerdp.FreeRDP
+                3. Run this setup script again"
             fi
         fi
         if [[ ! $FREERDP_MAJOR_VERSION =~ ^[0-9]+$ ]] || ((FREERDP_MAJOR_VERSION < 3)); then
