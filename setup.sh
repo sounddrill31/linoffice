@@ -244,6 +244,22 @@ function check_requirements() {
     Or visit: https://github.com/containers/podman-compose"
     fi
 
+    # Check if python-dotenv is installed (dependency of podman-compose)
+    if python3 -c "import dotenv" >/dev/null 2>&1; then
+        print_success "python-dotenv is installed."
+    else
+        print_error "python-dotenv is not installed. 
+        
+    HOW TO FIX:
+    Using pip: pip install python-dotenv
+    If you don't have pip, you can install it with your package manager.
+    Ubuntu/Debian: sudo apt install python3-pip
+    Fedora: sudo dnf install python3-pip
+    OpenSUSE: sudo zypper install python3-pip
+    Arch Linux: sudo pacman -S python-pip"
+
+    fi
+
     COMPOSE_VERSION=$(podman-compose --version)
     print_success "podman-compose is installed: $COMPOSE_VERSION"
 
