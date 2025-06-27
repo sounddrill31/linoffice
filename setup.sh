@@ -11,6 +11,21 @@ APPDATA_PATH="${HOME}/.local/share/linoffice"
 SUCCESS_FILE="${APPDATA_PATH}/success"
 PROGRESS_FILE="${APPDATA_PATH}/setup_progress.log"
 
+# Relative filepaths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LINOFFICE_DIR="$SCRIPT_DIR"
+LINOFFICE="$(realpath "${SCRIPT_DIR}/linoffice.sh")"
+COMPOSE_FILE="$(realpath "${SCRIPT_DIR}/config/compose.yaml")"
+LINOFFICE_CONF="$(realpath "${SCRIPT_DIR}/config/linoffice.conf")"
+OEM_DIR="$(realpath "${SCRIPT_DIR}/config/oem")"
+LOCALE_REG_SCRIPT="$(realpath "${SCRIPT_DIR}/config/locale_reg.sh")"
+LOCALE_LANG_SCRIPT="$(realpath "${SCRIPT_DIR}/config/locale_lang.sh")"
+REGIONAL_REG="$(realpath "${SCRIPT_DIR}/config/oem/registry/regional_settings.reg")"
+LOGFILE="$(realpath "${APPDATA_PATH}/windows_install.log")"
+DESKTOP_DIR="$(realpath "${SCRIPT_DIR}/desktop")"
+APPS_DIR="$(realpath "${SCRIPT_DIR}/apps")"
+FREERDP_COMMAND="" # will be checked in the script whether it's xfreerdp, xfreerdp3, or the Flatpak version
+
 # Progress tracking states
 PROGRESS_REQUIREMENTS="requirements_completed"
 PROGRESS_CONTAINER="container_created"
@@ -74,21 +89,6 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
-
-# Relative filepaths
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LINOFFICE_DIR="$SCRIPT_DIR"
-LINOFFICE="$(realpath "${SCRIPT_DIR}/linoffice.sh")"
-COMPOSE_FILE="$(realpath "${SCRIPT_DIR}/config/compose.yaml")"
-LINOFFICE_CONF="$(realpath "${SCRIPT_DIR}/config/linoffice.conf")"
-OEM_DIR="$(realpath "${SCRIPT_DIR}/config/oem")"
-LOCALE_REG_SCRIPT="$(realpath "${SCRIPT_DIR}/config/locale_reg.sh")"
-LOCALE_LANG_SCRIPT="$(realpath "${SCRIPT_DIR}/config/locale_lang.sh")"
-REGIONAL_REG="$(realpath "${SCRIPT_DIR}/config/oem/registry/regional_settings.reg")"
-LOGFILE="$(realpath "${APPDATA_PATH}/windows_install.log")"
-DESKTOP_DIR="$(realpath "${SCRIPT_DIR}/desktop")"
-APPS_DIR="$(realpath "${SCRIPT_DIR}/apps")"
-FREERDP_COMMAND="" # will be checked in the script whether it's xfreerdp, xfreerdp3, or the Flatpak version
 
 # Function to exit with error
 exit_with_error() {
