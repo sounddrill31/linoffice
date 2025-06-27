@@ -578,7 +578,7 @@ function check_available() {
         detect_freerdp_command
     fi
     print_step "20" "Checking if RDP server is available"
-    local max_attempts=60  # 20 minutes with 20 seconds per attempt
+    local max_attempts=15  # maximum 90 seconds
     local attempt=0
     local success=0
     
@@ -592,8 +592,8 @@ function check_available() {
                 if [ $attempt -ge $max_attempts ]; then
                     break
                 fi
-                print_info "Waiting 20 seconds before next attempt..."
-                sleep 20
+                print_info "Waiting 10 seconds before next attempt..."
+                sleep 10
                 continue
             fi
 
@@ -630,7 +630,7 @@ function check_available() {
             # If unable to connect, try again
             if [ $attempt -lt $max_attempts ]; then
                 print_info "RDP server not ready yet, waiting 20 seconds..."
-                sleep 20
+                sleep 10
             fi
         done
 
