@@ -380,7 +380,7 @@ function check_requirements() {
     Please ensure the config/oem/registry directory exists and contains regional_settings.reg"
     fi
 
-    print_success "Found regional.reg file"
+    print_success "Found regional_settings.reg file"
 
     # Check connectivity to microsoft.com
     print_step "11" "Checking connectivity to Microsoft"
