@@ -50,6 +50,8 @@ if %ERRORLEVEL% equ 0 (
     echo %DATE% %TIME% Task "%taskname2%" already exists, skipping creation. >> C:\OEM\setup.log
 ) else (
     schtasks /create /tn "%taskname2%" /tr "%command2%" /sc onlogon /rl HIGHEST /f >> C:\OEM\setup.log 2>&1
+    REM Ensure the TimeSync task only runs once per boot and does not restart on every logon (RDP, etc.)
+    powershell -Command "Get-ScheduledTask -TaskName 'TimeSync' | Set-ScheduledTask -Settings (New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew)" >> C:\OEM\setup.log 2>&1
     if %ERRORLEVEL% equ 0 (
         echo %DATE% %TIME% Scheduled task "%taskname2%" created successfully. >> C:\OEM\setup.log
     ) else (
