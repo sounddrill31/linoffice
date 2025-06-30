@@ -8,28 +8,24 @@ fi
 
 USER_APPLICATIONS_DIR=$(grep -E '^\s*USER_APPLICATIONS_DIR=' setup.sh | cut -d'=' -f2 | tr -d '"' | tr -d "'")
 if [[ -z "$USER_APPLICATIONS_DIR" ]]; then
-  echo "Error: USER_APPLICATIONS_DIR not found in setup.sh."
-  exit 1
+  echo "Error: USER_APPLICATIONS_DIR not found in setup.sh. The uninstallation is incomplete."
 fi
 
 APPDATA_PATH=$(grep -E '^\s*APPDATA_PATH=' setup.sh | cut -d'=' -f2 | tr -d '"' | tr -d "'")
 if [[ -z "$APPDATA_PATH" ]]; then
-  echo "Error: APPDATA_PATH not found in setup.sh."
-  exit 1
+  echo "Error: APPDATA_PATH not found in setup.sh. The uninstallation is incomplete."
 fi
 
 # Check if APPDATA_PATH exists and delete if it does
 if [[ -d "$APPDATA_PATH" ]]; then
   rm -r "$APPDATA_PATH"
 else
-  echo "Error: Directory $APPDATA_PATH does not exist."
-  exit 1
+  echo "Error: Directory $APPDATA_PATH does not exist. The uninstallation is incomplete."
 fi
 
 # Check if USER_APPLICATIONS_DIR exists
 if [[ ! -d "$USER_APPLICATIONS_DIR" ]]; then
-  echo "Error: Directory $USER_APPLICATIONS_DIR does not exist."
-  exit 1
+  echo "Error: Directory $USER_APPLICATIONS_DIR does not exist. The uninstallation is incomplete."
 fi
 
 # Find .desktop files containing linoffice.sh in Exec= line
@@ -46,7 +42,7 @@ if [[ -n "$DESKTOP_FILES" ]]; then
     echo "Deletion of .desktop files aborted."
   fi
 else
-  echo "No .desktop files containing linoffice.sh found."
+  echo "No .desktop files created by LinOffice were found."
 fi
 
 # Find all files and folders in the same directory as uninstall.sh (excluding itself)
