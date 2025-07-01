@@ -379,6 +379,112 @@ function check_requirements() {
 
     print_success "Made scripts executable"
 
+    # Check for various potential Podman problems
+    # Check subUID/subGID mappings as some users had problems here
+    print_info "Checking subUID/subGID mappings"
+    if ! grep -q "^$(whoami):" /etc/subuid || ! grep -q "^$(whoami):" /etc/subgid; then
+        exit_with_error "Missing subUID/subGID mappings for the user.
+        HOW TO FIX:
+        1. Run: sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $(whoami)
+        2. Refresh Podman configuration: podman system migrate
+        3. Verify mappings in /etc/subuid and /etc/subgid"
+    fi
+    print_success "subUID/subGID mappings verified."
+    
+    # Check Podman storage configuration and whether overlay storage driver is used, as some users had problems here
+    print_info "Checking Podman storage configuration"
+    if ! podman info --format '{{.Store.GraphDriverName}}' 2>/dev/null | grep -q "overlay"; then
+        exit_with_error "Podman is not using overlay storage driver or there's a configuration issue.
+        
+        HOW TO FIX:
+        1. Check Podman storage configuration: podman info
+        2. Try resetting Podman: podman system reset (WARNING: This removes all containers and images)
+        3. Check if /run/containers directory exists and is writable"
+    fi
+    
+    # Determine if running rootless or rootful
+    if podman info --format '{{.Host.Security.Rootless}}' | grep -q true; then
+        IS_ROOTLESS=true
+        STORAGE_DIR="$HOME/.local/share/containers/storage"
+        NETWORK_DIR="$HOME/.local/share/containers/storage/networks"
+    else
+        IS_ROOTLESS=false
+        STORAGE_DIR="/var/lib/containers/storage"
+        NETWORK_DIR="/run/containers/storage/networks"
+    fi
+    print_info "Podman running in $( $IS_ROOTLESS && echo 'rootless' || echo 'rootful' ) mode"
+    
+    # Check if storage directory is accessible
+    if [ ! -d "$STORAGE_DIR" ] || [ ! -w "$STORAGE_DIR" ]; then
+        print_error "Podman storage directory inaccessible: $STORAGE_DIR"
+        print_info "HOW TO FIX:
+        1. Check if directory exists: ls -ld \"$STORAGE_DIR\"
+        2. If it exists, fix permissions: $( $IS_ROOTLESS && echo "chmod -R u+rwX \"$STORAGE_DIR\"" || echo "sudo chmod -R u+rwX \"$STORAGE_DIR\"" )
+        3. If it does not exist, initialize Podman: podman info"
+        exit_with_error "Podman storage directory not accessible."
+    fi
+    print_success "Podman storage directory verified: $STORAGE_DIR"
+    
+    # Check which networking backend is in use
+    print_info "Checking Podman networking is working"
+    NETWORK_BACKEND=$(podman info --format '{{.Host.NetworkBackend}}' 2>/dev/null)
+    if [ -z "$NETWORK_BACKEND" ]; then
+        exit_with_error "Failed to detect Podman's network backend. Make sure Podman is correctly installed and accessible to your user. Run 'podman info' to diagnose."
+    fi
+    print_info "Podman is using network backend: $NETWORK_BACKEND"
+
+    # Test network creation for all backends
+    TEST_NET_NAME="linoffice_net_test_$(date +%s)"
+    print_info "Testing network creation with backend: $NETWORK_BACKEND"
+    if ! podman network create "$TEST_NET_NAME" >/dev/null 2>&1; then
+        print_error "Failed to create test network '$TEST_NET_NAME'."
+        print_info "HOW TO FIX:
+        1. Check Podman logs: journalctl -u podman
+        2. $( $IS_ROOTLESS && echo 'Ensure user has sufficient permissions.' || echo 'Run as root or check sudo permissions.' )
+        3. Reinstall network backend:
+           - For netavark: $( $IS_ROOTLESS && echo 'podman system reset && podman info' || echo 'sudo dnf reinstall netavark || sudo apt install netavark' )
+           - For CNI: Ensure CNI plugins are installed (e.g., sudo dnf install containernetworking-plugins)
+        4. Verify SELinux/AppArmor settings if enabled."
+        exit_with_error "Network creation failed."
+    fi
+    print_success "Test network '$TEST_NET_NAME' created successfully."
+
+    # For netavark, check aardvark-dns directory
+    if [ "$NETWORK_BACKEND" = "netavark" ]; then
+        AARDVARK_DIR="$NETWORK_DIR/aardvark-dns"
+        if [ ! -d "$NETWORK_DIR" ]; then
+            exit_with_error "Network directory does not exist: $NETWORK_DIR"
+        fi
+        if [ ! -w "$NETWORK_DIR" ]; then
+            exit_with_error "Network directory not writable: $NETWORK_DIR"
+        fi
+        if [ ! -d "$AARDVARK_DIR" ]; then
+            exit_with_error "aardvark-dns directory does not exist: $AARDVARK_DIR"
+        fi
+        if [ ! -w "$AARDVARK_DIR" ]; then
+            exit_with_error "aardvark-dns directory not writable: $AARDVARK_DIR"
+        fi
+        print_success "Netavark and aardvark-dns configuration verified."
+    fi
+    
+    # Clean up test network
+    if podman network exists "$TEST_NET_NAME" >/dev/null 2>&1; then
+        podman network rm "$TEST_NET_NAME" >/dev/null 2>&1 || print_info "Note: Failed to remove test network '$TEST_NET_NAME', you may remove it manually."
+    fi
+    print_success "Podman networking check completed."
+
+    # Test basic container creation to catch storage issues early
+    print_info "Testing basic container functionality..."
+    if ! timeout 60 podman run --rm alpine:latest echo "test" >/dev/null 2>&1; then
+        exit_with_error "Basic container test failed. This could indicate storage driver issues.
+        
+        HOW TO FIX:
+        1. Check Podman logs: journalctl --user -u podman
+        2. Try: podman system reset (WARNING: removes all containers/images)
+        3. Ensure /run/containers and storage directories have correct permissions
+        4. Check if your filesystem supports overlay mounts"
+    fi
+
     # Run locale scripts
     print_step "2" "Detecting region and language settings"
     print_info "Running locale configuration scripts"
@@ -462,112 +568,6 @@ function create_container() {
     local timeout_counter=0
     local max_timeout=3600  # 60 minutes maximum wait time between podman-compose log output
     local last_activity_time=$(date +%s)
-
-    # Check subUID/subGID mappings as some users had problems here
-    print_info "Checking subUID/subGID mappings"
-    if ! grep -q "^$(whoami):" /etc/subuid || ! grep -q "^$(whoami):" /etc/subgid; then
-        exit_with_error "Missing subUID/subGID mappings for the user.
-        HOW TO FIX:
-        1. Run: sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $(whoami)
-        2. Refresh Podman configuration: podman system migrate
-        3. Verify mappings in /etc/subuid and /etc/subgid"
-    fi
-    print_success "subUID/subGID mappings verified."
-    
-    # Check Podman storage configuration and if overlay storage driver is working as some users had problems here
-    print_info "Checking Podman storage configuration"
-    if ! podman info --format '{{.Store.GraphDriverName}}' 2>/dev/null | grep -q "overlay"; then
-        exit_with_error "Podman is not using overlay storage driver or there's a configuration issue.
-        
-        HOW TO FIX:
-        1. Check Podman storage configuration: podman info
-        2. Try resetting Podman: podman system reset (WARNING: This removes all containers and images)
-        3. Check if /run/containers directory exists and is writable"
-    fi
-    
-    # Test basic container creation to catch storage issues early
-    print_info "Testing basic container functionality..."
-    if ! timeout 60 podman run --rm alpine:latest echo "test" >/dev/null 2>&1; then
-        exit_with_error "Basic container test failed. This could indicate storage driver issues.
-        
-        HOW TO FIX:
-        1. Check Podman logs: journalctl --user -u podman
-        2. Try: podman system reset (WARNING: removes all containers/images)
-        3. Ensure /run/containers and storage directories have correct permissions
-        4. Check if your filesystem supports overlay mounts"
-    fi
-
-    # Some users had 'No such file or directory' errors relating to aardvark-dns, this is checking if everything is working before composing the container
-    # Determine if running rootless or rootful
-    if podman info --format '{{.Host.Security.Rootless}}' | grep -q true; then
-        IS_ROOTLESS=true
-        STORAGE_DIR="$HOME/.local/share/containers/storage"
-        NETWORK_DIR="$HOME/.local/share/containers/storage/networks"
-    else
-        IS_ROOTLESS=false
-        STORAGE_DIR="/var/lib/containers/storage"
-        NETWORK_DIR="/run/containers/storage/networks"
-    fi
-    print_info "Podman running in $( $IS_ROOTLESS && echo 'rootless' || echo 'rootful' ) mode"
-
-    # Check if storage directory is accessible
-    if [ ! -d "$STORAGE_DIR" ] || [ ! -w "$STORAGE_DIR" ]; then
-        print_error "Podman storage directory inaccessible: $STORAGE_DIR"
-        print_info "HOW TO FIX:
-        1. Check if directory exists: ls -ld \"$STORAGE_DIR\"
-        2. If it exists, fix permissions: $( $IS_ROOTLESS && echo "chmod -R u+rwX \"$STORAGE_DIR\"" || echo "sudo chmod -R u+rwX \"$STORAGE_DIR\"" )
-        3. If it does not exist, initialize Podman: podman info"
-        exit_with_error "Podman storage directory not accessible."
-    fi
-    print_success "Podman storage directory verified: $STORAGE_DIR"
-    
-    # Check which networking backend is in use
-    print_info "Checking Podman networking is working"
-    NETWORK_BACKEND=$(podman info --format '{{.Host.NetworkBackend}}' 2>/dev/null)
-    if [ -z "$NETWORK_BACKEND" ]; then
-        exit_with_error "Failed to detect Podman's network backend. Make sure Podman is correctly installed and accessible to your user. Run 'podman info' to diagnose."
-    fi
-    print_info "Podman is using network backend: $NETWORK_BACKEND"
-
-    # Test network creation for all backends
-    TEST_NET_NAME="linoffice_net_test_$(date +%s)"
-    print_info "Testing network creation with backend: $NETWORK_BACKEND"
-    if ! podman network create "$TEST_NET_NAME" >/dev/null 2>&1; then
-        print_error "Failed to create test network '$TEST_NET_NAME'."
-        print_info "HOW TO FIX:
-        1. Check Podman logs: journalctl -u podman
-        2. $( $IS_ROOTLESS && echo 'Ensure user has sufficient permissions.' || echo 'Run as root or check sudo permissions.' )
-        3. Reinstall network backend:
-           - For netavark: $( $IS_ROOTLESS && echo 'podman system reset && podman info' || echo 'sudo dnf reinstall netavark || sudo apt install netavark' )
-           - For CNI: Ensure CNI plugins are installed (e.g., sudo dnf install containernetworking-plugins)
-        4. Verify SELinux/AppArmor settings if enabled."
-        exit_with_error "Network creation failed."
-    fi
-    print_success "Test network '$TEST_NET_NAME' created successfully."
-
-    # For netavark, check aardvark-dns directory
-    if [ "$NETWORK_BACKEND" = "netavark" ]; then
-        AARDVARK_DIR="$NETWORK_DIR/aardvark-dns"
-        if [ ! -d "$NETWORK_DIR" ]; then
-            exit_with_error "Network directory does not exist: $NETWORK_DIR"
-        fi
-        if [ ! -w "$NETWORK_DIR" ]; then
-            exit_with_error "Network directory not writable: $NETWORK_DIR"
-        fi
-        if [ ! -d "$AARDVARK_DIR" ]; then
-            exit_with_error "aardvark-dns directory does not exist: $AARDVARK_DIR"
-        fi
-        if [ ! -w "$AARDVARK_DIR" ]; then
-            exit_with_error "aardvark-dns directory not writable: $AARDVARK_DIR"
-        fi
-        print_success "Netavark and aardvark-dns configuration verified."
-    fi
-    
-    # Clean up test network
-    if podman network exists "$TEST_NET_NAME" >/dev/null 2>&1; then
-        podman network rm "$TEST_NET_NAME" >/dev/null 2>&1 || print_info "Note: Failed to remove test network '$TEST_NET_NAME', you may remove it manually."
-    fi
-    print_success "Podman networking check completed."
 
     # Start podman-compose in the background with unbuffered output and strip ANSI codes
     print_info "Starting podman-compose in detached mode..."
