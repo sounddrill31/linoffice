@@ -327,6 +327,16 @@ function check_requirements() {
     Please ensure the config/oem directory exists"
     fi
 
+    # Check OEM directory permissions
+    if [ ! -r "$OEM_DIR" ] || [ ! -x "$OEM_DIR" ] || ! find "$OEM_DIR" -type f -readable | head -1 >/dev/null 2>&1; then
+        exit_with_error "Insufficient permissions to access OEM directory: $OEM_DIR
+        
+        HOW TO FIX:
+        1. Check directory permissions: ls -ld $OEM_DIR
+        2. Fix permissions: chmod -R u+rwX $OEM_DIR
+        3. If using SELinux/AppArmor, you may need to adjust security contexts"
+    fi
+
     # Check if compose.yaml exists
     if [ ! -f "$COMPOSE_FILE.default" ]; then
         exit_with_error "Compose file not found: $COMPOSE_FILE.default
