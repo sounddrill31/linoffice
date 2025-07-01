@@ -485,6 +485,25 @@ function check_requirements() {
         4. Check if your filesystem supports overlay mounts"
     fi
 
+    # Check connectivity to microsoft.com
+    print_info "Checking connectivity to Microsoft"
+
+    if ! curl -s --head --request GET --max-time 10 -L https://www.microsoft.com | grep -q "200"; then
+        # Alternative method: curl to a reliable fallback endpoint
+        if ! curl -s --head --request GET --max-time 10 -L https://www.office.com | grep -q "200"; then
+            exit_with_error "Unable to connect to microsoft.com.
+            HOW TO FIX:
+            1. Check your internet connection
+            2. Verify DNS settings: Ensure you can resolve microsoft.com (try: nslookup microsoft.com)
+            3. Check firewall settings: Ensure outbound connections to microsoft.com are allowed
+            4. Try again or contact your network administrator"
+        else
+            print_success "Successfully connected to Microsoft"
+        fi
+    else
+        print_success "Successfully connected to Microsoft"
+    fi
+
     # Run locale scripts
     print_step "2" "Detecting region and language settings"
     print_info "Running locale configuration scripts"
@@ -510,25 +529,6 @@ function check_requirements() {
     fi
 
     print_success "Found regional_settings.reg file"
-
-    # Check connectivity to microsoft.com
-    print_step "3" "Checking connectivity to Microsoft"
-
-    if ! curl -s --head --request GET --max-time 10 -L https://www.microsoft.com | grep -q "200"; then
-        # Alternative method: curl to a reliable fallback endpoint
-        if ! curl -s --head --request GET --max-time 10 -L https://www.office.com | grep -q "200"; then
-            exit_with_error "Unable to connect to microsoft.com.
-            HOW TO FIX:
-            1. Check your internet connection
-            2. Verify DNS settings: Ensure you can resolve microsoft.com (try: nslookup microsoft.com)
-            3. Check firewall settings: Ensure outbound connections to microsoft.com are allowed
-            4. Try again or contact your network administrator"
-        else
-            print_success "Successfully connected to Microsoft"
-        fi
-    else
-        print_success "Successfully connected to Microsoft"
-    fi
 }
 
 function check_linoffice_container() {
@@ -553,7 +553,7 @@ function setup_logfile() {
 }
 
 function create_container() {
-    print_step "4" "Setting up the LinOffice container"
+    print_step "3" "Setting up the LinOffice container"
     local bootcount=0
     local required_boots=5
         # this is how many times the Windows VM needs to boot to be ready
@@ -610,21 +610,21 @@ function create_container() {
 
             # Check for download progress
             if ! $download_started && grep -q "Downloading Windows 11" "$LOGFILE"; then
-                print_step "5" "Starting Windows download (about 5 GB). This will take a while depending on your Internet speed."
+                print_step "4" "Starting Windows download (about 5 GB). This will take a while depending on your Internet speed."
                 download_started=true
                 last_activity_time=$current_time
             fi
 
             # Check for download completion
             if $download_started && ! $download_finished && grep -q "100%" "$LOGFILE"; then
-                print_step "6" "Windows download finished"
+                print_step "5" "Windows download finished"
                 download_finished=true
                 last_activity_time=$current_time
             fi
 
             # Check for Windows start
             if $download_finish && ! $install_started && grep -q "Windows started" "$LOGFILE"; then
-                print_step "7" "Installing Windows. This will take a while."
+                print_step "6" "Installing Windows. This will take a while."
                 install_started=true
                 last_activity_time=$current_time
             fi
@@ -642,10 +642,10 @@ function create_container() {
                 bootcount=$current_boots
                 print_success "Reboot $bootcount of $required_boots completed"
                 if [ "$bootcount" -eq 3 ]; then
-                    print_step "8" "Windows installation finished"
+                    print_step "7" "Windows installation finished"
                 fi
                 if [ "$bootcount" -eq 4 ]; then
-                    print_step "9" "Downloading and installing Office (about 3 GB). This will take a while."
+                    print_step "8" "Downloading and installing Office (about 3 GB). This will take a while."
                 fi
                 last_activity_time=$current_time
                 if [ "$bootcount" -ge "$required_boots" ]; then
@@ -712,7 +712,8 @@ function check_available() {
     if [ -z "$FREERDP_COMMAND" ]; then
         detect_freerdp_command
     fi
-    print_step "10" "Checking if RDP server is available"
+    print_step "9" "Checking if everything is set up correctly"
+    print_info "Checking if RDP server is available"
     local max_attempts=15  # maximum 90 seconds
     local attempt=0
     local success=0
@@ -787,7 +788,7 @@ function check_success() {
     if [ -z "$FREERDP_COMMAND" ]; then
         detect_freerdp_command
     fi
-    print_step "11" "Checking if Office is installed"
+    print_info "Checking if Office is installed"
 
     local freerdp_pid=""
     local elapsed_time=0
@@ -911,7 +912,7 @@ function check_success() {
 }
 
 function desktop_files() {
-    print_step "12" "Installing .desktop files (app launchers)"
+    print_step "10" "Installing .desktop files (app launchers)"
     
     # Check if required directories exist
     if [ ! -d "$DESKTOP_DIR" ]; then
