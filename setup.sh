@@ -319,7 +319,6 @@ function check_requirements() {
     fi
     print_success "iptables modules are loaded"
 
-
     # Check if most important LinOffice files exist
     print_info "Checking for essential setup files"
 
@@ -417,7 +416,6 @@ function check_requirements() {
 }
 
 function check_linoffice_container() {
-    print_step "4" "Setting up the LinOffice container"
     print_info "Checking if LinOffice container exists already"
     if podman container exists "$CONTAINER_NAME"; then
         print_info "Container exists already."
@@ -439,7 +437,7 @@ function setup_logfile() {
 }
 
 function create_container() {
-    print_info "Creating a new LinOffice container"
+    print_step "4" "Setting up the LinOffice container"
     local bootcount=0
     local required_boots=5
         # this is how many times the Windows VM needs to boot to be ready
@@ -454,6 +452,17 @@ function create_container() {
     local timeout_counter=0
     local max_timeout=3600  # 60 minutes maximum wait time between podman-compose log output
     local last_activity_time=$(date +%s)
+
+    # Run some checks before creating the container
+    print_info "Checking subUID/subGID mappings"
+    if ! grep -q "^$(whoami):" /etc/subuid || ! grep -q "^$(whoami):" /etc/subgid; then
+        exit_with_error "Missing subUID/subGID mappings for the user.
+        HOW TO FIX:
+        1. Run: sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $(whoami)
+        2. Refresh Podman configuration: podman system migrate
+        3. Verify mappings in /etc/subuid and /etc/subgid"
+    fi
+    print_success "subUID/subGID mappings verified."
 
     # Start podman-compose in the background with unbuffered output and strip ANSI codes
     print_info "Starting podman-compose in detached mode..."
