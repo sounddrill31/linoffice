@@ -308,6 +308,18 @@ function check_requirements() {
 
     print_success "FreeRDP found. Using FreeRDP command '${FREERDP_COMMAND}'."
 
+    # Check if iptables modules are loaded
+    print_info "Checking iptables kernel modules for WinApps support"
+    if ! lsmod | grep -q ip_tables || ! lsmod | grep -q iptable_nat; then
+        exit_with_error "iptables kernel modules not loaded. Folder sharing will not work. HOW TO FIX:
+        
+    Run the following command:
+    echo -e 'ip_tables\niptable_nat' | sudo tee /etc/modules-load.d/iptables.conf
+    Then reboot your system."
+    fi
+    print_success "iptables modules are loaded"
+
+
     # Check if most important LinOffice files exist
     print_info "Checking for essential setup files"
 
