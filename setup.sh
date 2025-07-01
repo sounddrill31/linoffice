@@ -463,7 +463,7 @@ function create_container() {
     local max_timeout=3600  # 60 minutes maximum wait time between podman-compose log output
     local last_activity_time=$(date +%s)
 
-    # Run some checks before creating the container
+    # Check subUID/subGID mappings as some users had problems here
     print_info "Checking subUID/subGID mappings"
     if ! grep -q "^$(whoami):" /etc/subuid || ! grep -q "^$(whoami):" /etc/subgid; then
         exit_with_error "Missing subUID/subGID mappings for the user.
@@ -473,11 +473,40 @@ function create_container() {
         3. Verify mappings in /etc/subuid and /etc/subgid"
     fi
     print_success "subUID/subGID mappings verified."
+    
+    # Check Podman storage configuration and if overlay storage driver is working as some users had problems here
+    print_info "Checking Podman storage configuration"
+    if ! podman info --format '{{.Store.GraphDriverName}}' 2>/dev/null | grep -q "overlay"; then
+        exit_with_error "Podman is not using overlay storage driver or there's a configuration issue.
+        
+        HOW TO FIX:
+        1. Check Podman storage configuration: podman info
+        2. Try resetting Podman: podman system reset (WARNING: This removes all containers and images)
+        3. Check if /run/containers directory exists and is writable"
+    fi
+    
+    # Test basic container creation to catch storage issues early
+    print_info "Testing basic container functionality..."
+    if ! timeout 60 podman run --rm alpine:latest echo "test" >/dev/null 2>&1; then
+        exit_with_error "Basic container test failed. This could indicate storage driver issues.
+        
+        HOW TO FIX:
+        1. Check Podman logs: journalctl --user -u podman
+        2. Try: podman system reset (WARNING: removes all containers/images)
+        3. Ensure /run/containers and storage directories have correct permissions
+        4. Check if your filesystem supports overlay mounts"
+    fi
 
     # Start podman-compose in the background with unbuffered output and strip ANSI codes
     print_info "Starting podman-compose in detached mode..."
     if ! podman-compose --file "$COMPOSE_FILE" up -d >>"$LOGFILE" 2>&1; then
         exit_with_error "Failed to start containers. Check $LOGFILE for details."
+    fi
+
+    # Check if container was actually created
+    sleep 5
+    if ! podman ps -a --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "^$CONTAINER_NAME$"; then
+        exit_with_error "Container $CONTAINER_NAME was not created successfully. Check $LOGFILE for detailed error messages."
     fi
 
     print_info "Tailing logs from container: $CONTAINER_NAME"
