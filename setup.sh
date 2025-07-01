@@ -148,10 +148,11 @@ function check_requirements() {
     # Exit on any error
     set -e
     print_info "Starting LinOffice setup script..."
+    print_step "1" "Checking requirements"
 
     # Check minimum RAM (8 GB)
-    print_step "1" "Checking minimum RAM"
-    REQUIRED_RAM=7
+    print_info "Checking minimum RAM"
+    REQUIRED_RAM=7 # 8 GB shows up as 7.6 GB so best to just set the threshold to 7 in this script
     AVAILABLE_RAM="$(free -b | awk '/^Mem:/{print int($2/1024/1024/1024)}')"
     if [ "$AVAILABLE_RAM" -lt "$REQUIRED_RAM" ]; then
         exit_with_error "Insufficient RAM. Required: ${REQUIRED_RAM}GB, Available: ${AVAILABLE_RAM}GB. \
@@ -160,7 +161,7 @@ function check_requirements() {
     print_success "Sufficient RAM detected: ${AVAILABLE_RAM}GB"
 
     # Check minimum free storage (64 GB)
-    print_step "2" "Checking minimum free storage"
+    print_info "Checking minimum free storage"
     REQUIRED_STORAGE=64
     AVAILABLE_STORAGE=$(df -B1G --output=avail /home | tail -n 1 | awk '{print $1}')
     if [ "$AVAILABLE_STORAGE" -lt "$REQUIRED_STORAGE" ]; then
@@ -170,7 +171,7 @@ function check_requirements() {
     print_success "Sufficient free storage detected: ${AVAILABLE_STORAGE}GB"
 
     # Check if computer supports virtualization
-    print_step "3" "Checking virtualization support"
+    print_info "Checking virtualization support"
 
     if ! command -v lscpu &> /dev/null; then
         exit_with_error "lscpu command not found. Please install util-linux package."
@@ -205,7 +206,7 @@ function check_requirements() {
     print_success "Virtualization support detected: $VIRT_SUPPORT"
 
     # Check if podman is installed
-    print_step "4" "Checking if podman is installed"
+    print_info "Checking if podman is installed"
 
     if ! command -v podman &> /dev/null; then
         exit_with_error "podman is not installed.
@@ -228,7 +229,7 @@ function check_requirements() {
     print_success "podman is installed: $PODMAN_VERSION"
 
     # Check if podman-compose is installed
-    print_step "5" "Checking if podman-compose is installed"
+    print_info "Checking if podman-compose is installed"
 
     if ! command -v podman-compose &> /dev/null; then
         exit_with_error "podman-compose is not installed.
@@ -264,7 +265,7 @@ function check_requirements() {
     print_success "podman-compose is installed: $COMPOSE_VERSION"
 
     # Check if FreeRDP is available
-    print_step "6" "Checking if FreeRDP is available"
+    print_info "Checking if FreeRDP is available"
 
     detect_freerdp_command
     local FREERDP_MAJOR_VERSION=""
@@ -308,7 +309,7 @@ function check_requirements() {
     print_success "FreeRDP found. Using FreeRDP command '${FREERDP_COMMAND}'."
 
     # Check if most important LinOffice files exist
-    print_step "7" "Checking for essential setup files"
+    print_info "Checking for essential setup files"
 
     if [ ! -d "$OEM_DIR" ]; then
         exit_with_error "OEM files not found
@@ -334,7 +335,7 @@ function check_requirements() {
     print_success "Files found."
 
     # Make scripts executable
-    print_step "8" "Making scripts executable"
+    print_info "Making scripts executable"
 
     if [ ! -f "$LINOFFICE" ]; then
         exit_with_error "File not found: $LINOFFICE
@@ -358,7 +359,8 @@ function check_requirements() {
     print_success "Made scripts executable"
 
     # Run locale scripts
-    print_step "9" "Running locale configuration scripts"
+    print_step "2" "Detecting region and language settings"
+    print_info "Running locale configuration scripts"
 
     print_info "Executing: $LOCALE_REG_SCRIPT"
     if ! "$LOCALE_REG_SCRIPT"; then
@@ -373,7 +375,7 @@ function check_requirements() {
     print_success "Locale script executed successfully"
 
     # Check if newly created regional.reg exists
-    print_step "10" "Checking for regional_settings.reg file"
+    print_info "Checking for regional_settings.reg file"
 
     if [ ! -f "$REGIONAL_REG" ]; then
         exit_with_error "Required file not found: $REGIONAL_REG
@@ -383,7 +385,7 @@ function check_requirements() {
     print_success "Found regional_settings.reg file"
 
     # Check connectivity to microsoft.com
-    print_step "11" "Checking connectivity to Microsoft"
+    print_step "3" "Checking connectivity to Microsoft"
 
     if ! curl -s --head --request GET --max-time 10 -L https://www.microsoft.com | grep -q "200"; then
         # Alternative method: curl to a reliable fallback endpoint
@@ -403,7 +405,8 @@ function check_requirements() {
 }
 
 function check_linoffice_container() {
-    print_step "12" "Checking if LinOffice container exists already"
+    print_step "4" "Setting up the LinOffice container"
+    print_info "Checking if LinOffice container exists already"
     if podman container exists "$CONTAINER_NAME"; then
         print_info "Container exists already."
         CONTAINER_EXISTS=1
@@ -424,7 +427,7 @@ function setup_logfile() {
 }
 
 function create_container() {
-    print_step "13" "Setting up the LinOffice container."
+    print_info "Creating a new LinOffice container"
     local bootcount=0
     local required_boots=5
         # this is how many times the Windows VM needs to boot to be ready
@@ -475,21 +478,21 @@ function create_container() {
 
             # Check for download progress
             if ! $download_started && grep -q "Downloading Windows 11" "$LOGFILE"; then
-                print_step "14" "Starting Windows download (about 5 GB). This will take a while depending on your Internet speed."
+                print_step "5" "Starting Windows download (about 5 GB). This will take a while depending on your Internet speed."
                 download_started=true
                 last_activity_time=$current_time
             fi
 
             # Check for download completion
             if $download_started && ! $download_finished && grep -q "100%" "$LOGFILE"; then
-                print_step "15" "Windows download finished"
+                print_step "6" "Windows download finished"
                 download_finished=true
                 last_activity_time=$current_time
             fi
 
             # Check for Windows start
             if $download_finish && ! $install_started && grep -q "Windows started" "$LOGFILE"; then
-                print_step "16" "Installing Windows. This will take a while."
+                print_step "7" "Installing Windows. This will take a while."
                 install_started=true
                 last_activity_time=$current_time
             fi
@@ -507,10 +510,10 @@ function create_container() {
                 bootcount=$current_boots
                 print_success "Reboot $bootcount of $required_boots completed"
                 if [ "$bootcount" -eq 3 ]; then
-                    print_step "17" "Windows installation finished"
+                    print_step "8" "Windows installation finished"
                 fi
                 if [ "$bootcount" -eq 4 ]; then
-                    print_step "18" "Downloading and installing Office (about 3 GB). This will take a while."
+                    print_step "9" "Downloading and installing Office (about 3 GB). This will take a while."
                 fi
                 last_activity_time=$current_time
                 if [ "$bootcount" -ge "$required_boots" ]; then
@@ -535,7 +538,7 @@ function create_container() {
         if ! podman ps -q --filter "name=$CONTAINER_NAME" | grep -q .; then
             exit_with_error "Container setup completed but container is not running. Check $LOGFILE for details."
         else
-            print_step "19" "Container setup completed successfully"
+            print_success "Container setup completed successfully"
             return 0
         fi
     else
@@ -577,7 +580,7 @@ function check_available() {
     if [ -z "$FREERDP_COMMAND" ]; then
         detect_freerdp_command
     fi
-    print_step "20" "Checking if RDP server is available"
+    print_step "10" "Checking if RDP server is available"
     local max_attempts=15  # maximum 90 seconds
     local attempt=0
     local success=0
@@ -652,7 +655,7 @@ function check_success() {
     if [ -z "$FREERDP_COMMAND" ]; then
         detect_freerdp_command
     fi
-    print_step "21" "Checking if Office is installed"
+    print_step "11" "Checking if Office is installed"
 
     local freerdp_pid=""
     local elapsed_time=0
@@ -776,7 +779,7 @@ function check_success() {
 }
 
 function desktop_files() {
-    print_step "22" "Installing .desktop files (app launchers)"
+    print_step "12" "Installing .desktop files (app launchers)"
     
     # Check if required directories exist
     if [ ! -d "$DESKTOP_DIR" ]; then
@@ -847,7 +850,7 @@ function desktop_files() {
     print_info "App launchers installed: $INSTALLED_COUNT"
 
     if [ $INSTALLED_COUNT -gt 0 ]; then
-        print_step "16" "Updating desktop database"
+        print_info "Updating desktop database"
         if command -v update-desktop-database >/dev/null 2>&1; then
             update-desktop-database "$USER_APPLICATIONS_DIR" 2>/dev/null || true
             print_success "Desktop database updated"
