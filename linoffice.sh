@@ -321,7 +321,7 @@ waOfficeCleanup() {
 # Role: Wait function with coordination between multiple Winoffice processes, used for Office lock file cleanup
 waWaitForAllProcesses() {
     local max_wait_time=30
-    local wait_elapsed=0
+    local TIME_ELAPSED=0
     local check_interval=2
     
     dprint "WAITING FOR ALL FREERDP PROCESSES TO CLOSE"
@@ -344,7 +344,7 @@ waWaitForAllProcesses() {
     
     # Then wait for any remaining processes to finish
     while ls "${APPDATA_PATH}"/FreeRDP_Process_*.cproc &>/dev/null; do
-        if [ $wait_elapsed -ge $max_wait_time ]; then
+        if [ $TIME_ELAPSED -ge $max_wait_time ]; then
             dprint "TIMEOUT WAITING FOR PROCESSES - FORCING CLEANUP"
             # Force remove any remaining process files
             rm -f "${APPDATA_PATH}"/FreeRDP_Process_*.cproc 2>/dev/null
@@ -352,8 +352,8 @@ waWaitForAllProcesses() {
         fi
         
         sleep $check_interval
-        wait_elapsed=$((wait_elapsed + check_interval))
-        dprint "Still waiting for processes to close... ($wait_elapsed seconds elapsed)"
+        TIME_ELAPSED=$((TIME_ELAPSED + check_interval))
+        dprint "Still waiting for processes to close... ($TIME_ELAPSED seconds elapsed)"
     done
     
     dprint "PROCESS CLEANUP COMPLETED"
@@ -426,11 +426,11 @@ waResetSystem() {
     
     # Wait for container to restart
     local max_wait_time=120
-    local wait_elapsed=0
+    local TIME_ELAPSED=0
     local check_interval=5
     
     dprint "WAITING FOR WINDOWS VM TO RESTART..."
-    while (( wait_elapsed < max_wait_time )); do
+    while (( TIME_ELAPSED < max_wait_time )); do
         if [[ $("$WAFLAVOR" inspect --format='{{.State.Status}}' "$CONTAINER_NAME") == "running" ]]; then
             if timeout 1 bash -c ">/dev/tcp/$RDP_IP/$RDP_PORT" 2>/dev/null; then
                 dprint "WINDOWS VM RESTARTED SUCCESSFULLY"
@@ -439,13 +439,13 @@ waResetSystem() {
             fi
         fi
         sleep $check_interval
-        wait_elapsed=$((wait_elapsed + check_interval))
-        if (( wait_elapsed % 30 == 0 )); then
-            echo -e "Still waiting for Windows VM to restart... ($((wait_elapsed/60)) minutes elapsed)"
+        TIME_ELAPSED=$((TIME_ELAPSED + check_interval))
+        if (( TIME_ELAPSED % 30 == 0 )); then
+            echo -e "Still waiting for Windows VM to restart... ($((TIME_ELAPSED/60)) minutes elapsed)"
         fi
     done
     
-    if (( wait_elapsed >= max_wait_time )); then
+    if (( TIME_ELAPSED >= max_wait_time )); then
         dprint "TIMEOUT WAITING FOR WINDOWS VM TO RESTART"
         echo -e "Timeout waiting for Windows VM to restart. Please check the container status."
         waThrowExit $EC_FAIL_START
@@ -575,7 +575,6 @@ function waCheckContainerRunning() {
     local TIME_LIMIT=60
     local TIME_INTERVAL=5
     local MAX_WAIT_TIME=120  # Maximum time to wait for container to be ready
-    local WAIT_ELAPSED=0
 
     # Determine the state of the container.
     CONTAINER_STATE=$("$WAFLAVOR" inspect --format='{{.State.Status}}' "$CONTAINER_NAME")
@@ -633,11 +632,13 @@ function waCheckContainerRunning() {
     [ "$EXIT_STATUS" -ne 0 ] && waThrowExit "$EXIT_STATUS"
 
     # Wait for container to be fully ready
-    if [[ "$CONTAINER_STATE" == "created" || "$CONTAINER_STATE" == "exited" || "$CONTAINER_STATE" == "dead" ]]; then
+    if [[ "$CONTAINER_STATE" == "created" || "$CONTAINER_STATE" == "exited" || "$CONTAINER_STATE" == "dead" || "$CONTAINER_STATE" == "restarting" ]]; then
         dprint "WAITING FOR CONTAINER TO BE FULLY READY..."
         echo -e "Waiting for Windows to be ready..."
+
+        TIME_ELAPSED=0
         
-        while (( WAIT_ELAPSED < MAX_WAIT_TIME )); do
+        while (( TIME_ELAPSED < MAX_WAIT_TIME )); do
             # Check if container is running
             if [[ $("$WAFLAVOR" inspect --format='{{.State.Status}}' "$CONTAINER_NAME") == "running" ]]; then
                 # Try to connect to RDP port to verify it's ready
@@ -654,16 +655,16 @@ function waCheckContainerRunning() {
             fi
             
             sleep 5
-            WAIT_ELAPSED=$((WAIT_ELAPSED + 5))
+            TIME_ELAPSED=$((TIME_ELAPSED + 5))
             
             # Show progress every 30 seconds
-            if (( WAIT_ELAPSED % 30 == 0 )); then
-                echo -e "Still waiting for Windows to be ready... ($((WAIT_ELAPSED/60)) minutes elapsed)"
+            if (( TIME_ELAPSED % 30 == 0 )); then
+                echo -e "Still waiting for Windows to be ready... ($((TIME_ELAPSED/60)) minutes elapsed)"
             fi
         done
         
         # If we timed out waiting for the container
-        if (( WAIT_ELAPSED >= MAX_WAIT_TIME )); then
+        if (( TIME_ELAPSED >= MAX_WAIT_TIME )); then
             dprint "TIMEOUT WAITING FOR CONTAINER TO BE READY"
             echo -e "Timeout waiting for Windows to be ready. Please try again."
             waThrowExit $EC_FAIL_START
@@ -923,12 +924,12 @@ function waRunCommand() {
 
         # Wait for the process to terminate with timeout
         local wait_timeout=30
-        local wait_elapsed=0
+        local TIME_ELAPSED=0
         local wait_interval=1
 
-        while kill -0 "$FREERDP_PID" 2>/dev/null && [ $wait_elapsed -lt $wait_timeout ]; do
+        while kill -0 "$FREERDP_PID" 2>/dev/null && [ $TIME_ELAPSED -lt $wait_timeout ]; do
             sleep $wait_interval
-            wait_elapsed=$((wait_elapsed + wait_interval))
+            TIME_ELAPSED=$((TIME_ELAPSED + wait_interval))
         done
 
         # If process is still running after timeout, force kill it
