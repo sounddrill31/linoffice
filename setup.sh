@@ -311,7 +311,7 @@ function check_requirements() {
     # Check if iptables modules are loaded
     print_info "Checking iptables kernel modules for WinApps support"
     if ! lsmod | grep -q ip_tables || ! lsmod | grep -q iptable_nat; then
-        exit_with_error "iptables kernel modules not loaded. Folder sharing will not work. HOW TO FIX:
+        print_error "iptables kernel modules not loaded. Sharing the /home folder with the Windows VM will not work unless connected via RDP. HOW TO FIX:
         
     Run the following command:
     echo -e 'ip_tables\niptable_nat' | sudo tee /etc/modules-load.d/iptables.conf
@@ -449,23 +449,14 @@ function check_requirements() {
     fi
     print_success "Test network '$TEST_NET_NAME' created successfully."
 
-    # For netavark, check aardvark-dns directory
-    if [ "$NETWORK_BACKEND" = "netavark" ]; then
-        AARDVARK_DIR="$NETWORK_DIR/aardvark-dns"
-        if [ ! -d "$NETWORK_DIR" ]; then
-            exit_with_error "Network directory does not exist: $NETWORK_DIR"
-        fi
-        if [ ! -w "$NETWORK_DIR" ]; then
-            exit_with_error "Network directory not writable: $NETWORK_DIR"
-        fi
-        if [ ! -d "$AARDVARK_DIR" ]; then
-            exit_with_error "aardvark-dns directory does not exist: $AARDVARK_DIR"
-        fi
-        if [ ! -w "$AARDVARK_DIR" ]; then
-            exit_with_error "aardvark-dns directory not writable: $AARDVARK_DIR"
-        fi
-        print_success "Netavark and aardvark-dns configuration verified."
+    # Check that network directory exists
+    if [ ! -d "$NETWORK_DIR" ]; then
+        exit_with_error "Network directory does not exist: $NETWORK_DIR"
     fi
+    if [ ! -w "$NETWORK_DIR" ]; then
+        exit_with_error "Network directory not writable: $NETWORK_DIR"
+    fi
+    print_success "Netavark configuration verified."
     
     # Clean up test network
     if podman network exists "$TEST_NET_NAME" >/dev/null 2>&1; then
