@@ -475,6 +475,7 @@ function check_requirements() {
         3. Ensure /run/containers and storage directories have correct permissions
         4. Check if your filesystem supports overlay mounts"
     fi
+    print_success "Podman test container created and removed successfully."
 
     # Check connectivity to microsoft.com
     print_info "Checking connectivity to Microsoft"
