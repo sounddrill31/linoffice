@@ -309,7 +309,7 @@ function check_requirements() {
     print_success "FreeRDP found. Using FreeRDP command '${FREERDP_COMMAND}'."
 
     # Check if iptables modules are loaded
-    print_info "Checking iptables kernel modules for WinApps support"
+    print_info "Checking iptables kernel modules"
     if ! lsmod | grep -q ip_tables || ! lsmod | grep -q iptable_nat; then
         print_error "iptables kernel modules not loaded. Sharing the /home folder with the Windows VM will not work unless connected via RDP. HOW TO FIX:
         
