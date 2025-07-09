@@ -88,6 +88,27 @@ If you need to re-create the .desktop files you can do it by running `./setup.sh
 
 If you want to re-run the script that tidies up the Windows File Explorer you can run `./setup.sh --firstrun`.
 
+### Feedback & Troubleshooting
+
+At the moment, the setup script is still **EXPERIMENTAL**. 
+
+If it **succeeds** to install, please [share your system setup](https://github.com/eylenburg/linoffice/issues/15) which will be very helpful in order to know where LinOffice works out of the box. Please share these details:
+- System information:
+    - The release version of LinOffice you used
+    - Your Linux distribution
+    - Your desktop environment
+    - Are you using Wayland or X11?
+    - How did you install Podman? (e.g. was it preinstalled, or did you install it from the repo, or did you do something more exotic like installing it in a Distrobox container)
+    - How did you install Podman-Compose? (e.g. did you install it from the repo, did you install it via `pip`, or did you install it manually)
+    - Which FreeRDP version are you using ('native' version from repo or Flatpak)
+
+
+If it **fails** to install, please [create a bug report](https://github.com/eylenburg/linoffice/issues) with these information:
+- The `windows_install.log` (in `~/.local/share/linoffice`)
+- The `setup.log`, `setup_office.log`, and `setup_rdp.log` (if they exist) in `C:\OEM` in the Windows VM (you can access it through `127.0.0.1:8006` in the browser (password is `MyWindowsPassword`) or via RDP with the command `xfreerdp /cert:ignore /u:MyWindowsUser /p:MyWindowsPassword /v:127.0.0.1 /port:3388`)
+- Your system information (see above)
+
+
 ### Uninstall
 
 You can run the `uninstall.sh` to remove everything.
