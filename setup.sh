@@ -8,6 +8,8 @@ CONTAINER_EXISTS=0  # 0 = Does not exist (default), 1 = exists
 # Absolute filepaths
 USER_APPLICATIONS_DIR="${HOME}/.local/share/applications"
 APPDATA_PATH="${HOME}/.local/share/linoffice"
+# Ensure APPDATA_PATH exists before using it
+mkdir -p "$APPDATA_PATH"
 SUCCESS_FILE="${APPDATA_PATH}/success"
 PROGRESS_FILE="${APPDATA_PATH}/setup_progress.log"
 
@@ -21,7 +23,7 @@ OEM_DIR="$(realpath "${SCRIPT_DIR}/config/oem")"
 LOCALE_REG_SCRIPT="$(realpath "${SCRIPT_DIR}/config/locale_reg.sh")"
 LOCALE_LANG_SCRIPT="$(realpath "${SCRIPT_DIR}/config/locale_lang.sh")"
 REGIONAL_REG="$(realpath "${SCRIPT_DIR}/config/oem/registry/regional_settings.reg")"
-LOGFILE="$(realpath "${APPDATA_PATH}/windows_install.log")"
+LOGFILE="${APPDATA_PATH}/windows_install.log"
 DESKTOP_DIR="$(realpath "${SCRIPT_DIR}/desktop")"
 APPS_DIR="$(realpath "${SCRIPT_DIR}/apps")"
 FREERDP_COMMAND="" # will be checked in the script whether it's xfreerdp, xfreerdp3, or the Flatpak version
