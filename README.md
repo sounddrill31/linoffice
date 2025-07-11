@@ -86,6 +86,8 @@ Unfortunately it is not allowed to redistribute Microsoft software, otherwise I 
 
 If you need to re-create the .desktop files you can do it by running `./setup.sh --desktop`.
 
+If your Windows VM installs successfully but Office doesn't seem to be installed, you can trigger a re-installation using `.setup.sh --installoffice`.
+
 If you want to re-run the script that tidies up the Windows File Explorer you can run `./setup.sh --firstrun`.
 
 ### Feedback & Troubleshooting

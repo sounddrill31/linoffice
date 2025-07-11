@@ -37,6 +37,7 @@ PROGRESS_DESKTOP="desktop_files_installed"
 # Command line arguments
 DESKTOP_ONLY=false
 FIRSTRUN=false
+INSTALL_OFFICE_ONLY=false
 
 # Colors for output
 RED='\033[0;31m'
@@ -63,11 +64,12 @@ print_step() {
 
 # Function to display usage information
 print_usage() {
-    print_info "Usage: $0 [--desktop] [--firstrun]"
+    print_info "Usage: $0 [--desktop] [--firstrun] [--installoffice]"
     print_info "Options:"
     print_info " (no flag)     Run the installation script from the beginning"
     print_info "  --desktop    Only recreate the desktop files (.desktop launchers)"
     print_info "  --firstrun   Force RDP and Office installation checks"
+    print_info "  --installoffice   Only run the Office installation script script (in case the Windows installation has finished but Office is not installed)"
     exit 1
 }
 
@@ -80,6 +82,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --firstrun)
             FIRSTRUN=true
+            shift
+            ;;
+        --installoffice)
+            INSTALL_OFFICE_ONLY=true
             shift
             ;;
         --help)
@@ -1036,8 +1042,46 @@ function desktop_files() {
     fi
 }
 
+# Function to run InstallOffice.ps1 via FreeRDP
+run_install_office_ps1() {
+    if [ -z "$FREERDP_COMMAND" ]; then
+        detect_freerdp_command
+    fi
+    print_info "Running Office installation script via FreeRDP..."
+    local connection_timeout=120
+    # Run FreeRDP command once, no retries
+    timeout $connection_timeout "$FREERDP_COMMAND" \
+        /cert:ignore \
+        +home-drive \
+        /u:MyWindowsUser \
+        /p:MyWindowsPassword \
+        /v:127.0.0.1 \
+        /port:3388 \
+        /app:program:powershell.exe,cmd:'-ExecutionPolicy Bypass -File C:\\OEM\\InstallOffice.ps1' \
+        >>"$LOGFILE" 2>&1
+    local exit_code=$?
+    if [ $exit_code -eq 0 ]; then
+        print_success "Office installation script executed successfully via FreeRDP."
+        return 0
+    else
+        print_error "FreeRDP failed to run Office installation script (exit code: $exit_code)"
+        return 1
+    fi
+}
+
 # Main logic
 init_progress_file
+
+# If --installoffice flag is set, only run InstallOffice.ps1 via FreeRDP
+if [ "$INSTALL_OFFICE_ONLY" = true ]; then
+    print_info "Running InstallOffice.ps1 via FreeRDP (--installoffice mode)..."
+    if run_install_office_ps1; then
+        print_success "Office installation script executed successfully!"
+    else
+        exit_with_error "Failed to run Office installation script via FreeRDP."
+    fi
+    exit 0
+fi
 
 # If --desktop flag is set, only run desktop_files
 if [ "$DESKTOP_ONLY" = true ]; then
