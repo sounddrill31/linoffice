@@ -180,17 +180,18 @@ function check_requirements() {
     fi
 
     # Check for virtualization support
-    VIRT_SUPPORT=$(lscpu | grep -i virtualization || true)
-    if [ -z "$VIRT_SUPPORT" ]; then
+    if lscpu | grep -qiE 'virtualization|vmx|svm'; then
+        echo "Virtualization is supported."
+    else
         exit_with_error "CPU virtualization not supported or not enabled.
         
-    HOW TO FIX:
-    1. Reboot your computer and enter BIOS/UEFI settings (usually F2, F12, Del, or Esc during boot)
-    2. Look for virtualization settings:
-    - Intel: Enable 'Intel VT-x' or 'Intel Virtualization Technology'
-    - AMD: Enable 'AMD-V' or 'SVM Mode'
-    3. Save settings and reboot
-    4. If you can't find these options, your CPU may not support virtualization"
+        HOW TO FIX:
+        1. Reboot your computer and enter BIOS/UEFI settings (usually F2, F12, Del, or Esc during boot)
+        2. Look for virtualization settings:
+        - Intel: Enable 'Intel VT-x' or 'Intel Virtualization Technology'
+        - AMD: Enable 'AMD-V' or 'SVM Mode'
+        3. Save settings and reboot
+        4. If you can't find these options, your CPU may not support virtualization"
     fi
 
     # Additional check for KVM support
