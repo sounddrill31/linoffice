@@ -804,7 +804,7 @@ function check_available() {
         else
             print_error "Failed to connect to RDP server after $max_attempts attempts"
             print_info "Container may still be starting up. Check $LOGFILE for details."
-            print_info "Possible fix: open 127.0.0.1:8006 in your web browser to access Windows via VNC, then log in using the password 'MyWindowsPassword' and log out again (Start -> click on the account icon -> Sign out). Then run setup.sh again."
+            print_info "Possible fix: open 127.0.0.1:8006 in your web browser to access Windows via VNC, then log in using the password 'MyWindowsPassword', check if Office is installed (or if not check if a setup.exe is running in Task Manager and wait for the installation to complete), then log out again to make Windows ready to accept RDP connections (to log out: Start -> click on the account icon -> Sign out). Then run setup.sh again."
             return 1
         fi
     else
