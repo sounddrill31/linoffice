@@ -611,14 +611,14 @@ function create_container() {
 
             # Check for download completion
             if $download_started && ! $download_finished && grep -q "100%" "$LOGFILE"; then
-                print_step "5" "Windows download finished"
+                print_success "Windows download finished"
                 download_finished=true
                 last_activity_time=$current_time
             fi
 
             # Check for Windows start
             if $download_finish && ! $install_started && grep -q "Windows started" "$LOGFILE"; then
-                print_step "6" "Installing Windows. This will take a while."
+                print_step "5" "Installing Windows. This will take a while."
                 install_started=true
                 last_activity_time=$current_time
             fi
@@ -636,10 +636,10 @@ function create_container() {
                 bootcount=$current_boots
                 print_success "Reboot $bootcount of $required_boots completed"
                 if [ "$bootcount" -eq 3 ]; then
-                    print_step "7" "Windows installation finished"
+                    print_success "Windows installation finished"
                 fi
                 if [ "$bootcount" -eq 4 ]; then
-                    print_step "8" "Downloading and installing Office (about 3 GB). This will take a while."
+                    print_step "6" "Downloading and installing Office (about 3 GB). This will take a while."
                 fi
                 last_activity_time=$current_time
                 if [ "$bootcount" -ge "$required_boots" ]; then
@@ -706,7 +706,7 @@ function check_available() {
     if [ -z "$FREERDP_COMMAND" ]; then
         detect_freerdp_command
     fi
-    print_step "9" "Checking if everything is set up correctly"
+    print_step "7" "Checking if everything is set up correctly"
     print_info "Checking if RDP server is available"
     local max_attempts=15  # maximum 90 seconds
     local attempt=0
@@ -906,7 +906,7 @@ function check_success() {
 }
 
 function desktop_files() {
-    print_step "10" "Installing .desktop files (app launchers)"
+    print_step "8" "Installing .desktop files (app launchers)"
     
     # Check if required directories exist
     if [ ! -d "$DESKTOP_DIR" ]; then
