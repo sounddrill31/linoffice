@@ -2,66 +2,50 @@
 
 # Check if setup.sh exists and extract USER_APPLICATIONS_DIR and APPDATA_PATH
 if [[ ! -f "setup.sh" ]]; then
-  echo "Error: setup.sh not found in the current directory."
-  exit 1
-fi
+  echo "Warning: setup.sh not found in the current directory."
+else
+  eval $(grep -E '^\s*USER_APPLICATIONS_DIR=' setup.sh)
+  eval $(grep -E '^\s*APPDATA_PATH=' setup.sh)
 
-USER_APPLICATIONS_DIR=$(grep -E '^\s*USER_APPLICATIONS_DIR=' setup.sh | cut -d'=' -f2 | tr -d '"' | tr -d "'")
-if [[ -z "$USER_APPLICATIONS_DIR" ]]; then
-  echo "Error: USER_APPLICATIONS_DIR not found in setup.sh. The uninstallation is incomplete."
-fi
+  if [[ -z "$USER_APPLICATIONS_DIR" ]]; then
+    echo "Warning: USER_APPLICATIONS_DIR not found in setup.sh."
+  fi
 
-APPDATA_PATH=$(grep -E '^\s*APPDATA_PATH=' setup.sh | cut -d'=' -f2 | tr -d '"' | tr -d "'")
-if [[ -z "$APPDATA_PATH" ]]; then
-  echo "Error: APPDATA_PATH not found in setup.sh. The uninstallation is incomplete."
+  if [[ -z "$APPDATA_PATH" ]]; then
+    echo "Warning: APPDATA_PATH not found in setup.sh."
+  fi
 fi
 
 # Check if APPDATA_PATH exists and delete if it does
 if [[ -d "$APPDATA_PATH" ]]; then
-  rm -r "$APPDATA_PATH"
+  read -p "Do you want to delete the directory $APPDATA_PATH? (y/n): " confirm
+  if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+    rm -r "$APPDATA_PATH"
+    echo "Deleted directory: $APPDATA_PATH"
+  else
+    echo "Deletion of $APPDATA_PATH aborted."
+  fi
 else
-  echo "Error: Directory $APPDATA_PATH does not exist. The uninstallation is incomplete."
-fi
-
-# Check if USER_APPLICATIONS_DIR exists
-if [[ ! -d "$USER_APPLICATIONS_DIR" ]]; then
-  echo "Error: Directory $USER_APPLICATIONS_DIR does not exist. The uninstallation is incomplete."
+  echo "Warning: Directory $APPDATA_PATH does not exist."
 fi
 
 # Find .desktop files containing linoffice.sh in Exec= line
-DESKTOP_FILES=$(find "$USER_APPLICATIONS_DIR" -type f -name "*.desktop" -exec grep -l "Exec=.*linoffice.sh" {} \;)
-if [[ -n "$DESKTOP_FILES" ]]; then
-  echo "The following .desktop files will be deleted:"
-  echo "$DESKTOP_FILES"
-  read -p "Do you want to proceed with deletion? (y/n): " confirm
-  if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
-    while IFS= read -r file; do
-      rm -f "$file" && echo "Deleted: $file"
-    done <<< "$DESKTOP_FILES"
+if [[ -n "$USER_APPLICATIONS_DIR" ]]; then
+  DESKTOP_FILES=$(find "$USER_APPLICATIONS_DIR" -type f -name "*.desktop" -exec grep -l "Exec=.*linoffice.sh" {} \;)
+  if [[ -n "$DESKTOP_FILES" ]]; then
+    echo "The following .desktop files will be deleted:"
+    echo "$DESKTOP_FILES"
+    read -p "Do you want to proceed with deletion? (y/n): " confirm
+    if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+      while IFS= read -r file; do
+        rm -f "$file" && echo "Deleted: $file"
+      done <<< "$DESKTOP_FILES"
+    else
+      echo "Deletion of .desktop files aborted."
+    fi
   else
-    echo "Deletion of .desktop files aborted."
+    echo "No .desktop files containing linoffice.sh found."
   fi
-else
-  echo "No .desktop files created by LinOffice were found."
-fi
-
-# Find all files and folders in the same directory as uninstall.sh (excluding itself)
-CURRENT_DIR="$(dirname "$(realpath "$0")")"
-SCRIPT_NAME="$(basename "$0")"
-
-FILES_TO_DELETE=$(find "$CURRENT_DIR" -maxdepth 1 -not -name "uninstall.sh")
-if [[ -n "$FILES_TO_DELETE" ]]; then
-  echo "The following files and folders will be deleted recursively:"
-  echo "$FILES_TO_DELETE"
-  read -p "Do you want to proceed with deletion? (y/n): " confirm
-  if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
-    find "$CURRENT_DIR" -maxdepth 1 -not -name "$SCRIPT_NAME" -exec rm -rf {} \;
-    echo "Files and folders deleted."
-  else
-    echo "Deletion of files and folders aborted."
-  fi
-else
-  echo "No files or folders to delete in $CURRENT_DIR."
 fi
 
 # Ask to delete the Windows container and its data
@@ -94,7 +78,30 @@ else
   echo "Windows container and data deletion aborted."
 fi
 
+# Find all files and folders in the same directory as uninstall.sh (excluding itself)
+CURRENT_DIR="$(dirname "$(realpath "$0")")"
+SCRIPT_NAME="$(basename "$0")"
+
+FILES_TO_DELETE=$(find "$CURRENT_DIR" -maxdepth 1 -not -name "$SCRIPT_NAME")
+if [[ -n "$FILES_TO_DELETE" ]]; then
+  echo "The following files and folders will be deleted recursively:"
+  echo "$FILES_TO_DELETE"
+  read -p "Do you want to proceed with deletion? (y/n): " confirm
+  if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+    find "$CURRENT_DIR" -maxdepth 1 -not -name "$SCRIPT_NAME" -exec rm -rf {} \;
+    if [[ -f "setup.sh" ]]; then
+      rm -f "setup.sh"
+    fi
+    echo "Files and folders deleted."
+  else
+    echo "Deletion of files and folders aborted."
+  fi
+else
+  echo "No files or folders to delete in $CURRENT_DIR."
+fi
+
 # Delete the uninstall.sh script itself
 echo "Deleting the uninstall script itself."
 rm -f "$0"
 echo "Script deleted."
+exit 0
