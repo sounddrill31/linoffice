@@ -144,7 +144,7 @@ You can open files from your file manager with Right-click -> Open with.
 
 You will need an Office 2024 license key or Office 365 subscription to use Office. During the first 5 days after installation, you can use Office without activation by clicking on "I have a product key" and then on the "X" of the window where you are supposed to enter your product key.
 
-The Microsoft Activation Scripts will also work if you have trouble with activation - just run `./linoffice.sh manual powershell.exe` from the script's directory to open a Powershell window where you can then paste the command for MAS.
+The Microsoft Activation Scripts will also work if you have trouble with activation - just run `./linoffice.sh manual powershell.exe` from the script's directory to open a Powershell window where you can then paste the command for MAS. You can also use MAS to extend Windows 10 updates until 2028.
 
 ### Window management
 
