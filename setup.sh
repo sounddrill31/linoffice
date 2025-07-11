@@ -610,6 +610,20 @@ function create_container() {
                 last_activity_time=$current_time
             fi
 
+            # Output download progress at 10%, 20%, ..., 90%
+            if $download_started && ! $download_finished; then
+                # Only print each progress percentage once
+                if [ -z "${progress_printed}" ]; then
+                    progress_printed=""
+                fi
+                for pct in 10 20 30 40 50 60 70 80 90; do
+                    if grep -q "${pct}%" "$LOGFILE" && [[ ",${progress_printed}," != *",${pct},"* ]]; then
+                        print_info "Windows download progress: ${pct}%"
+                        progress_printed="${progress_printed},${pct}"
+                    fi
+                done
+            fi
+
             # Check for download completion
             if $download_started && ! $download_finished && grep -q "100%" "$LOGFILE"; then
                 print_success "Windows download finished"
