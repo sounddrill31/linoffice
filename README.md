@@ -66,19 +66,22 @@ Hardware requirements:
 - Virtualization support (using kvm)
 - x86_64 CPU (ARM is currently not supported, although it would be possible)
 
+### Dependencies
+
 Dependencies that need to be installed (they should be in the repos of most distributions):
-- Podman
-- Podman-Compose
-- FreeRDP 
+- **Podman**
+- **Podman-Compose**
+- **FreeRDP**  (v3)
 
 If you are using an immutable distribution like Fedora Atomic or OpenSUSE MicroOS, you should have Podman preinstalled already. Podman-Compose can be [installed in your /home directory](https://github.com/containers/podman-compose?tab=readme-ov-file#manual) and FreeRDP can be [installed as a Flatpak](https://flathub.org/apps/com.freerdp.FreeRDP) (but make sure to give it permission to access the /home folder).
 
 ### Install
 
 0. Install the dependencies (see above)
-1. Download this repo
-2. Save in a convenient folder (e.g. `~/bin` or `~/.local/bin`)
-3. Make `setup.sh` executable (`chmod +x setup.sh`) and run it (`./linoffice.sh`).
+1. Download this repo (e.g. [release version](https://github.com/eylenburg/linoffice/releases) or [latest git version](https://github.com/eylenburg/linoffice/archive/refs/heads/main.zip))
+2. Unzip and save in a convenient folder (e.g. `~/bin` or `~/.local/bin`)
+3. Make sure that `setup.sh` is executable (`chmod +x setup.sh`, or in Dolphin: right-click -> Properties -> Permissions -> [x] Allow executing file as program) 
+4. Run the setup (`./setup.sh`).
 
 Or as a one-line command that you can copy and paste:
 ```
