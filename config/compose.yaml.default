@@ -37,7 +37,7 @@ services:
     restart: on-failure # Restart the Windows VM if the exit code indicates an error.
     volumes:
       - data:/storage:Z # Mount volume 'data' to use as Windows 'C:' drive.
-      - ${HOME}:/shared:z # Mount Linux user home directory @ '\\host.lan\Data'.
+      #- ${HOME}:/shared:z # Mount Linux user home directory @ '\\host.lan\Data'.
       #- /path/to/second/hard/disk:/storage2 # Uncomment to mount the second hard disk within the Windows VM. Ensure 'DISK2_SIZE' is specified above.
       - ./oem:/oem:Z # Enables automatic post-install execution of 'oem/install.bat'
       #- /home/user/Win11.iso:/boot.iso # Uncomment to use a custom Windows ISO. If specified, 'VERSION' (e.g. 'tiny11') will be ignored.
