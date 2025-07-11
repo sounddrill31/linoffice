@@ -81,7 +81,12 @@ If you are using an immutable distribution like Fedora Atomic or OpenSUSE MicroO
 2. Save in a convenient folder (e.g. `~/bin` or `~/.local/bin`)
 3. Make `setup.sh` executable (`chmod +x setup.sh`) and run it (`./linoffice.sh`).
 
-This should be all automatic but will take quite a while. You need to download about 8 GB in total and wait until both Windows and Office are installed. In my experience, on a modern laptop and with fast Internet, it took about 30 minutes all in, maybe 10 minutes of downloading and 20 minutes of installing.
+Or as a one-line command that you can copy and paste:
+```
+mkdir -p ~/.local/bin/linoffice && wget -qO- https://github.com/eylenburg/linoffice/archive/refs/heads/main.zip | funzip | tar -x -C ~/.local/bin/linoffice --strip-components=1 && chmod +x ~/.local/bin/linoffice/setup.sh && ~/.local/bin/linoffice/setup.sh
+```
+
+The setup.sh should do everything automatically but will take quite a while. You need to download about 8 GB in total and wait until both Windows and Office are installed. In my experience, on a modern laptop and with fast Internet, it took about 30 minutes all in, maybe 10 minutes of downloading and 20 minutes of installing.
 
 Unfortunately it is not allowed to redistribute Microsoft software, otherwise I would have just prepared a pre-made VM with Office installed, which would cut down the installation time and make this whole project much simpler. At the moment, the script downloads Windows, installs it into a VM, then downloads Office and installs it in the VM, as well as various other tweaks to integrate Office.
 
