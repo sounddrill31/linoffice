@@ -85,6 +85,8 @@ Or as a one-line command that you can copy and paste:
 mkdir -p ~/.local/bin/linoffice && wget -qO- https://github.com/eylenburg/linoffice/archive/refs/heads/main.zip | funzip | tar -x -C ~/.local/bin/linoffice --strip-components=1 && chmod +x ~/.local/bin/linoffice/setup.sh && ~/.local/bin/linoffice/setup.sh
 ```
 
+(Note: by default, Windows 11 Pro will be installed. If you want, you can also install Windows 10, which should be a bit snappier. To do that, replace `VERSION: "11"` with `VERSION: "10"` in the `config/compose.yaml.default` file _before_ running `setup.sh`. Microsoft will end mainstream support for Windows 10 in October 2025, but you after installation you can use Microsoft Activation Script (MAS) to extend Windows 10 updates until 2028.)
+
 The setup.sh should do everything automatically but will take quite a while. You need to download about 8 GB in total and wait until both Windows and Office are installed. In my experience, on a modern laptop (2023 mid-range AMD Ryzen CPU) and with fast Internet (250 Mbps download), it took about 15 minutes all in (breakdown: 3 minutes Windows download, 8 minutes Windows install, 4 minutes Office download and install).
 
 Unfortunately it is not allowed to redistribute Microsoft software, otherwise I would have just prepared a pre-made VM with Office installed, which would cut down the installation time and make this whole project much simpler. At the moment, the script downloads Windows, installs it into a VM, then downloads Office and installs it in the VM, as well as various other tweaks to integrate Office.
@@ -148,7 +150,7 @@ You can open files from your file manager with Right-click -> Open with.
 
 You will need an Office 2024 license key or Office 365 subscription to use Office. During the first 5 days after installation, you can use Office without activation by clicking on "I have a product key" and then on the "X" of the window where you are supposed to enter your product key.
 
-The Microsoft Activation Scripts will also work if you have trouble with activation - just run `./linoffice.sh manual powershell.exe` from the script's directory to open a Powershell window where you can then paste the command for MAS. You can also use MAS to extend Windows 10 updates until 2028.
+The Microsoft Activation Scripts will also work if you have trouble with activation - just run `./linoffice.sh manual powershell.exe` from the script's directory to open a Powershell window where you can then paste the command for MAS. 
 
 ### Window management
 
