@@ -550,11 +550,14 @@ function setup_logfile() {
 function create_container() {
     print_step "3" "Setting up the LinOffice container"
     local bootcount=0
-    local required_boots=5
+    local required_boots=4  # Accept 4 as the minimum, but allow for 5 if it happens (see comment below)
+    # The Windows/Office install process may show 4 or 5 reboots depending on version and script details.
+    # Sometimes the reboot between install.bat and InstallOffice.ps1 is not a full UEFI reboot, so only 4 are seen.
+    # We proceed if we see at least 4 reboots, and print a note if more are detected.
         # this is how many times the Windows VM needs to boot to be ready
         # the string to look for is "BdsDxe: starting Boot0004"
         # 3 reboots will be logged during initial Windows until you can see the desktop for the first time
-        # 1 reboot at the end of install.bat
+        # 1 reboot at the end of install.bat (this is the one that is not always logged for some reason)
         # 1 reboot at the end of the InstallOffice.ps1
     local result=1  # 0 = success, 1 = failure (assume failure by default)
     local download_started=false
@@ -667,9 +670,10 @@ function create_container() {
                 print_success "Reboot $bootcount of $required_boots completed"
                 if [ "$bootcount" -eq 3 ]; then
                     print_success "Windows installation finished"
-                fi
-                if [ "$bootcount" -eq 4 ]; then
                     print_step "6" "Downloading and installing Office (about 3 GB). This will take a while."
+                fi
+                if [ "$bootcount" -gt 4 ]; then
+                    print_info "More than 4 reboots detected ($bootcount). This is expected in some cases. Proceeding."
                 fi
                 last_activity_time=$current_time
                 if [ "$bootcount" -ge "$required_boots" ]; then
@@ -800,6 +804,7 @@ function check_available() {
         else
             print_error "Failed to connect to RDP server after $max_attempts attempts"
             print_info "Container may still be starting up. Check $LOGFILE for details."
+            print_info "Possible fix: open 127.0.0.1:8006 in your web browser to access Windows via VNC, then log in using the password 'MyWindowsPassword' and log out again (Start -> click on the account icon -> Sign out). Then run setup.sh again."
             return 1
         fi
     else
@@ -820,7 +825,7 @@ function check_success() {
     local max_retries=10
     local connection_timeout=60 # 1 minute should be enough to run the FirstRDPRun.ps1 script
     local check_interval=10  # Try again after 10 seconds
-    local installation_timeout=700
+    local installation_timeout=1800 # 30 minutes timeout for Office download and installation
     
     # Function to cleanup FreeRDP process
     cleanup_freerdp() {
