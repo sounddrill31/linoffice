@@ -604,7 +604,7 @@ function create_container() {
             fi
 
             # Check for download progress
-            if ! $download_started && grep -q "Downloading Windows 11" "$LOGFILE"; then
+            if ! $download_started && grep -q "Downloading Windows" "$LOGFILE"; then
                 print_step "4" "Starting Windows download (about 5 GB). This will take a while depending on your Internet speed."
                 download_started=true
                 last_activity_time=$current_time
