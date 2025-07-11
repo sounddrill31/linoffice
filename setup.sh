@@ -614,13 +614,28 @@ function create_container() {
                 print_success "Windows download finished"
                 download_finished=true
                 last_activity_time=$current_time
-            fi
 
-            # Check for Windows start
-            if $download_finish && ! $install_started && grep -q "Windows started" "$LOGFILE"; then
-                print_step "5" "Installing Windows. This will take a while."
-                install_started=true
-                last_activity_time=$current_time
+                # Monitor for either "Windows started" or "Shutdown completed" after download
+                print_info "Waiting for Windows to start after download..."
+                local monitor_timeout=300  # 5 minutes
+                local monitor_elapsed=0
+                local monitor_interval=5
+                while [ $monitor_elapsed -lt $monitor_timeout ]; do
+                    if grep -q "Windows started" "$LOGFILE"; then
+                        print_step "5" "Installing Windows. This will take a while."
+                        install_started=true
+                        last_activity_time=$(date +%s)
+                        break
+                    fi
+                    if grep -q "Shutdown completed" "$LOGFILE"; then
+                        exit_with_error "Windows installation failed: Detected shutdown before Windows started. Check $LOGFILE for details and see https://github.com/dockur/windows/issues for troubleshooting."
+                    fi
+                    sleep $monitor_interval
+                    monitor_elapsed=$((monitor_elapsed + monitor_interval))
+                done
+                if [ $monitor_elapsed -ge $monitor_timeout ]; then
+                    print_error "Timeout waiting for Windows to start after download. Check $LOGFILE for details."
+                fi
             fi
 
             # Check for error conditions
