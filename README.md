@@ -36,7 +36,6 @@ Improvements:
 
 ### Planned features
 
-- [ ] Set up with Windows 11 instead of Windows 10 (originally the setup script would install Windows 11, but at some point something broke upstream resulting in the automated installation failing - it seems to work fine with Windows 10 though and as long as Office runs on it that's good enough for now)
 - [ ] Option to deny network access to VM (after Office is all set up). The first aim is to avoid Windows and Office "phoning home", which could perhaps be done by setting the Windows DNS server to IP that doesn't work. It would also be nice to completely stop all non-RDP network traffic to reduce security risks for users who don't keep their Windows VM updated
 - [ ] GUI
     - [ ] Install wizard replacing `setup.sh`
@@ -86,7 +85,7 @@ Or as a one-line command that you can copy and paste:
 mkdir -p ~/.local/bin/linoffice && wget -qO- https://github.com/eylenburg/linoffice/archive/refs/heads/main.zip | funzip | tar -x -C ~/.local/bin/linoffice --strip-components=1 && chmod +x ~/.local/bin/linoffice/setup.sh && ~/.local/bin/linoffice/setup.sh
 ```
 
-The setup.sh should do everything automatically but will take quite a while. You need to download about 8 GB in total and wait until both Windows and Office are installed. In my experience, on a modern laptop and with fast Internet, it took about 30 minutes all in, maybe 10 minutes of downloading and 20 minutes of installing.
+The setup.sh should do everything automatically but will take quite a while. You need to download about 8 GB in total and wait until both Windows and Office are installed. In my experience, on a modern laptop (2023 mid-range AMD Ryzen CPU) and with fast Internet (250 Mbps download), it took about 15 minutes all in (breakdown: 3 minutes Windows download, 8 minutes Windows install, 4 minutes Office download and install).
 
 Unfortunately it is not allowed to redistribute Microsoft software, otherwise I would have just prepared a pre-made VM with Office installed, which would cut down the installation time and make this whole project much simpler. At the moment, the script downloads Windows, installs it into a VM, then downloads Office and installs it in the VM, as well as various other tweaks to integrate Office.
 
