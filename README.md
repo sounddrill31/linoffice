@@ -36,6 +36,7 @@ Improvements:
 
 ### Planned features
 
+- [ ] Set up with Windows 11 instead of Windows 10 (originally the setup script would install Windows 11, but at some point something broke upstream resulting in the automated installation failing - it seems to work fine with Windows 10 though and as long as Office runs on it that's good enough for now)
 - [ ] Option to deny network access to VM (after Office is all set up). The first aim is to avoid Windows and Office "phoning home", which could perhaps be done by setting the Windows DNS server to IP that doesn't work. It would also be nice to completely stop all non-RDP network traffic to reduce security risks for users who don't keep their Windows VM updated
 - [ ] GUI
     - [ ] Install wizard replacing `setup.sh`
@@ -184,4 +185,4 @@ The main script (`linoffice.sh`) is forked from [Winapps](https://github.com/win
 
 The Windows VM is set up using the [Dockur/Windows](https://github.com/dockur/windows) OCI container, MIT license.
 
-Windows 11 and Office 2024 are directly downloaded from Microsoft. This project contains only open-source code and does not distribute any copyrighted material. Any product keys found in the code are just generic placeholders provided by Microsoft for trial purposes. You will need to provide your own product keys to activate Windows and Office.
+Windows and Office are directly downloaded from Microsoft. This project contains only open-source code and does not distribute any copyrighted material. Any product keys found in the code are just generic placeholders provided by Microsoft for trial purposes. You will need to provide your own product keys to activate Windows and Office.
