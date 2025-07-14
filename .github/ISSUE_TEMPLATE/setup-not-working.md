@@ -1,7 +1,7 @@
 ---
 name: Setup not working
 about: The setup.sh fails to install Windows and Office
-title: "[SETUP]"
+title: "[SETUP ERROR] (short description here) "
 labels: bug
 assignees: ''
 
