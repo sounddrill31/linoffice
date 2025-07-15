@@ -47,6 +47,19 @@ The project utilises [Winapps](https://github.com/winapps-org/winapps), [Dockur/
 
 </details>
 
+### Comparison with other options to run Microsoft Office in Linux
+
+| |Linoffice|Winapps|Windows VM|Crossover|Wine|
+|:----|:----|:----|:----|:----|:----|
+|Office versions|Office 2024 & 365  (others also working but not installed by default)|Office 2007, 2010, 2013, 2016, 2019, 2021, 2024, 365|Office 2007, 2010, 2013, 2016, 2019, 2021, 2024, 365|[Office 2007, 2010, 2013, 2016, 365](https://www.codeweavers.com/compatibility?browse=&app_desc=&company=&rating=&platform=&date_start=&date_end=&name=microsoft+excel&search=app#cxlinux)|[Office 2007, 2010, 2013, 2016](https://appdb.winehq.org/objectManager.php?sClass=application&iId=11)|
+|Office components|Excel, Word, Powerpoint, OneNote, Outlook (others also working but not installed by default)|Excel, Word, Powerpoint, OneNote, Outlook, Access, Publisher, Visio, Project|Excel, Word, Powerpoint, OneNote, Outlook, Access, Publisher, Visio, Project|Excel, Word, Powerpoint|Excel, Word, Powerpoint|
+|Bugginess|🐞<br />Issues with moving or resizing windows, disappearing windows when multiple windows are open|🐞<br />Issues with moving or resizing windows, disappearing windows when multiple windows are open|✅ No bugs, working just as Microsoft intended|🐞🐞<br />Issues with moving or resizing windows, UI bugs, crashes, certain features may not work|🐞🐞🐞<br />Janky window management, UI bugs, crashes, certain features may not work, installation or activation may fail|
+|Cost|Free|Free|Free|$60/€60/£60 for Crossover|Free|
+|Activation with MAS|✅Yes|✅Yes|✅Yes|❌No|❌No|
+|RAM & CPU use|🔴 Significant (Windows VM)|🔴 Significant (Windows VM)|🔴 Significant (Windows VM)|Modest|Modest|
+|Integration into Linux|🟢 App launchers, file associations, save files in /home, shared clipboard|🟢 App launchers, file associations, save files in /home, shared clipboard|🔴 No integration in Linux, but can save files in /home (if shared storage is set up) and share the clipboard (if set up)|🟢 App launchers, file associations, save files in /home, shared clipboard|🟢 App launchers (may need to be created manually), file associations, save files in /home, shared clipboard|
+|Installation & setup|🟢 Easy<br />1. Install dependencies<br />2. Run LinOffice installer|🔴 Complicated<br />1. Install dependencies<br />2. Set up Windows VM<br />3. Install Office in VM<br />4. Create config file<br />5. Run WinApps installer|🟡 Medium<br />1. Install dependencies<br />2. Set up Windows VM<br />3. Install Office in VM|🟢 Easy<br />1. Install Crossover<br />2. Download Office installer and open it in Crossover|🔴 Complicated, with 'vanilla' Wine you need to follow specific instructions and workarounds to make it work; PlayOnLinux 4 has install scripts that may or may not work|
+
 # Installation
 
 ### Requirements
