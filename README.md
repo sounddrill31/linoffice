@@ -53,12 +53,12 @@ The project utilises [Winapps](https://github.com/winapps-org/winapps), [Dockur/
 |:----|:----|:----|:----|:----|:----|
 |Office versions|Office 2024 & 365  (others also working but not installed by default)|Office 2007, 2010, 2013, 2016, 2019, 2021, 2024, 365|Office 2007, 2010, 2013, 2016, 2019, 2021, 2024, 365|[Office 2007, 2010, 2013, 2016, 365](https://www.codeweavers.com/compatibility?browse=&app_desc=&company=&rating=&platform=&date_start=&date_end=&name=microsoft+excel&search=app#cxlinux)|[Office 2007, 2010, 2013, 2016](https://appdb.winehq.org/objectManager.php?sClass=application&iId=11)|
 |Office components|Excel, Word, Powerpoint, OneNote, Outlook (others also working but not installed by default)|Excel, Word, Powerpoint, OneNote, Outlook, Access, Publisher, Visio, Project|Excel, Word, Powerpoint, OneNote, Outlook, Access, Publisher, Visio, Project|Excel, Word, Powerpoint|Excel, Word, Powerpoint|
-|Bugginess|🐞<br />Issues with moving or resizing windows, disappearing windows when multiple windows are open|🐞<br />Issues with moving or resizing windows, disappearing windows when multiple windows are open|✅ No bugs, working just as Microsoft intended|🐞🐞<br />Issues with moving or resizing windows, UI bugs, crashes, certain features may not work|🐞🐞🐞<br />Janky window management, UI bugs, crashes, certain features may not work, installation or activation may fail|
+|Bugginess|🐞 Issues when moving or resizing Office windows or when working with multiple open Office windows|🐞 Issues when moving or resizing Office windows or when working with multiple open Office windows|✅ No bugs, working just as Microsoft intended|🐞🐞 UI bugs, crashes, failing to save files, certain features may not work|🐞🐞🐞 UI bugs, crashes, failing to save files, certain features may not work, installation or activation may fail|
 |Cost|Free|Free|Free|$60/€60/£60 for Crossover|Free|
 |Activation with MAS|✅Yes|✅Yes|✅Yes|❌No|❌No|
-|RAM & CPU use|🔴 Significant (Windows VM)|🔴 Significant (Windows VM)|🔴 Significant (Windows VM)|Modest|Modest|
+|RAM & CPU use|🔴 Significant (Windows VM)|🔴 Significant (Windows VM)|🔴 Significant (Windows VM)|🟢 Modest|🟢 Modest|
 |Integration into Linux|🟢 App launchers, file associations, save files in /home, shared clipboard|🟢 App launchers, file associations, save files in /home, shared clipboard|🔴 No integration in Linux, but can save files in /home (if shared storage is set up) and share the clipboard (if set up)|🟢 App launchers, file associations, save files in /home, shared clipboard|🟢 App launchers (may need to be created manually), file associations, save files in /home, shared clipboard|
-|Installation & setup|🟢 Easy<br />1. Install dependencies<br />2. Run LinOffice installer|🔴 Complicated<br />1. Install dependencies<br />2. Set up Windows VM<br />3. Install Office in VM<br />4. Create config file<br />5. Run WinApps installer|🟡 Medium<br />1. Install dependencies<br />2. Set up Windows VM<br />3. Install Office in VM|🟢 Easy<br />1. Install Crossover<br />2. Download Office installer and open it in Crossover|🔴 Complicated, with 'vanilla' Wine you need to follow specific instructions and workarounds to make it work; PlayOnLinux 4 has install scripts that may or may not work|
+|Installation & setup|🟢 Easy:<br />1. Install dependencies<br />2. Run LinOffice installer|🔴 Complicated:<br />1. Install dependencies<br />2. Set up Windows VM<br />3. Install Office in VM<br />4. Create config file<br />5. Run WinApps installer|🟡 Medium:<br />1. Install dependencies<br />2. Set up Windows VM<br />3. Install Office in VM|🟢 Easy:<br />1. Install Crossover<br />2. Download Office installer and open it in Crossover|🔴 Complicated; with 'vanilla' Wine you need to follow specific instructions and workarounds to make it work; PlayOnLinux 4 has install scripts that may or may not work|
 
 # Installation
 
@@ -195,6 +195,20 @@ In my experience, window management can be wonky, particularly if you're using W
 </details>
 
 I believe that these are FreeRDP issues. If it becomes too bad, you can try `./linoffice.sh reset` to kill all FreeRDP processes and reboot the Windows VM - but be aware that you will lose any unsaved Office documents this way.
+
+### Wrong keyboard layout
+
+Theoretically, this should be done automatically by the setup script but it might fall back to the US layout if it doesn't detect your Linux keyboard layout or can't match it to a Microsoft keyboard layout. There should be two ways to manually set the keyboard layout:
+
+Option 1: 
+- In the LinOffice folder, open the `config/linoffice.conf` and find the row saying `RDP_KBD=""`. 
+- Check [this Microsoft resource](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-input-locales-for-windows-language-packs?view=windows-11) to find the numeric code for your keyboard layout. 
+- Edit the line in the config file like these examples: `RDP_KBD="/kbd:layout:0x0809" for the UK keyboard (it says `(0809:00000809)` in the Microsoft link), `RDP_KBD="/kbd:layout:0x0407" for the German keyboard (it says `(0407:00000407)` in the Microsoft link), `RDP_KBD="/kbd:layout:0x0414" for the Norwegian keyboard (it says `(0414:00000414)` in the Microsoft link). 
+
+Option 2:
+- Access the Windows VM, either via RDP (`./linoffice.sh windows`) or VNC (`127.0.0.1:8006` in the browser, password is `MyWindowsPassword`)
+- Open the Windows Settings app and set your keyboard layout in there.
+- Open the Command Prompt (cmd.exe) and enter: `REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layout" /v IgnoreRemoteKeyboardLayout /t REG_DWORD /d 1` (this tells Windows to use its own keyboard layout and not whatever the RDP client uses)
 
 ### Orphaned lock files
 
