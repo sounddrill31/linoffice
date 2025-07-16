@@ -61,6 +61,7 @@ The project utilises [Winapps](https://github.com/winapps-org/winapps), [Dockur/
 |Installation & setup|🟢 Easy:<br />1. Install dependencies<br />2. Run LinOffice installer|🔴 Complicated:<br />1. Install dependencies<br />2. Set up Windows VM<br />3. Install Office in VM<br />4. Create config file<br />5. Run WinApps installer|🟡 Medium:<br />1. Install dependencies<br />2. Set up Windows VM<br />3. Install Office in VM|🟢 Easy:<br />1. Install Crossover<br />2. Download Office installer and open it in Crossover|🔴 Complicated; installation and activation will fail without arcane workarounds\**, no automatic creation of `.desktop` files|
 
 \*requires manual setup, e.g. VirtIO-win and WinFSP or Samba when using Virt-Manager/Qemu, or Virtualbox Guest Additions for Virtualbox
+
 \**PlayOnLinux 4 has install scripts for Office 2016 and below that may or may not work
 
 # Installation
@@ -206,7 +207,7 @@ Theoretically, this should be done automatically by the setup script but it migh
 Option 1: 
 - In the LinOffice folder, open the `config/linoffice.conf` and find the row saying `RDP_KBD=""`. 
 - Check [this Microsoft resource](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-input-locales-for-windows-language-packs?view=windows-11) to find the numeric code for your keyboard layout. 
-- Edit the line in the config file like these examples: `RDP_KBD="/kbd:layout:0x0809" for the UK keyboard (it says `(0809:00000809)` in the Microsoft link), `RDP_KBD="/kbd:layout:0x0407" for the German keyboard (it says `(0407:00000407)` in the Microsoft link), `RDP_KBD="/kbd:layout:0x0414" for the Norwegian keyboard (it says `(0414:00000414)` in the Microsoft link). 
+- Edit the line in the config file like these examples: `RDP_KBD="/kbd:layout:0x0809"` for the UK keyboard (it says `(0809:00000809)` in the Microsoft link), `RDP_KBD="/kbd:layout:0x0407"` for the German keyboard (it says `(0407:00000407)` in the Microsoft link), `RDP_KBD="/kbd:layout:0x0414"` for the Norwegian keyboard (it says `(0414:00000414)` in the Microsoft link). 
 
 Option 2:
 - Access the Windows VM, either via RDP (`./linoffice.sh windows`) or VNC (`127.0.0.1:8006` in the browser, password is `MyWindowsPassword`)
