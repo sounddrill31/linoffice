@@ -33,7 +33,7 @@ try {
     if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
         Write-Host "Installing PSWindowsUpdate module to $modulePath..."
         try {
-            Install-Module -Name PSWindowsUpdate -Force -Scope AllUsers -Path $modulePath -ErrorAction Stop
+            Install-Module -Name PSWindowsUpdate -Force -Scope AllUsers -ErrorAction Stop
         } catch {
             Write-Host "Failed to install PSWindowsUpdate module: $_"
             exit 1
