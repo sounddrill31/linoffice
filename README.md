@@ -160,6 +160,8 @@ You can open files from your file manager with Right-click -> Open with.
 - `./linoffice.sh reset`: kills all FreeRDP processes, cleans up Office lock files, and reboots the Windows VM
 - `./linoffice.sh cleanup [--full|--reset]`: cleans up Office lock files (such as ~$file.xlsx) in the home folder and removable media; `--full` cleans all files regardless of creation date, `--reset` resets the last cleanup timestamp
 
+If you are using the terminal commands often, you might want to create an alias by running `echo "alias linoffice='/home/user/.local/bin/linoffice/linoffice.sh'" >> ~/.bashrc && source ~/.bashrc` - but make sure to adjust the username and path to where your `linoffice.sh` script is saved. This will enable you to run the LinOffice script from anywhere, for example you'll be able to run `linoffice windows` instead of navigating to the correct folder and then running `./linoffice.sh windows`.
+
 ### Office activation 
 
 You will need an Office 2024 license key or Office 365 subscription to use Office. During the first 5 days after installation, you can use Office without activation by clicking on "I have a product key" and then on the "X" of the window where you are supposed to enter your product key.
