@@ -160,7 +160,7 @@ function check_requirements() {
 
     # Check minimum RAM (8 GB)
     print_info "Checking minimum RAM"
-    REQUIRED_RAM=7 # 8 GB shows up as 7.6 GB so best to just set the threshold to 7 in this script
+    REQUIRED_RAM=5 # 8 GB shows up as 7.6 GB so best to just set the threshold to 7 in this script. My system slows up as 6.52GB, but it's still an 8GB stick.
     AVAILABLE_RAM="$(free -b | awk '/^Mem:/{print int($2/1024/1024/1024)}')"
     if [ "$AVAILABLE_RAM" -lt "$REQUIRED_RAM" ]; then
         exit_with_error "Insufficient RAM. Required: ${REQUIRED_RAM}GB, Available: ${AVAILABLE_RAM}GB. \
